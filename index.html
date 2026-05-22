@@ -37,10 +37,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 .mm-item .num{font-size:13px;font-weight:600}
 .num.max-c{color:#5ba3f5}
 .num.min-c{color:#5bb87a}
-.ranker-list{padding:10px 14px;height:520px;overflow-y:auto}
-.ranker-list::-webkit-scrollbar{width:4px}
-.ranker-list::-webkit-scrollbar-track{background:#161822}
-.ranker-list::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+.ranker-list{padding:0 14px 10px;}
+.ranker-list-header{padding:8px 14px 5px;border-bottom:1px solid #2a2d3a;background:#161822;position:sticky;top:0;z-index:1}
+.ranker-list-body{height:520px;overflow-y:auto;padding:0 0 10px}
+.ranker-list-body::-webkit-scrollbar{width:4px}
+.ranker-list-body::-webkit-scrollbar-track{background:#161822}
+.ranker-list-body::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
 .r-header{display:grid;grid-template-columns:1fr 52px 68px;gap:4px;padding:0 0 5px;font-size:10px;color:#555;border-bottom:1px solid #2a2d3a;margin-bottom:4px}
 .r-header span:nth-child(2){text-align:center}
 .r-header span:nth-child(3){text-align:right}
@@ -52,6 +54,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 .r-class.air{color:#5bb87a}
 .r-class.rocket{color:#f5a623}
 .r-power{text-align:right;font-weight:600;color:#a78bfa}
+.ranker-item.hero-only{background:#1a1d2a;opacity:0.8}
+.ranker-item.hero-only .r-power{color:#888}
 .loading{text-align:center;padding:1.5rem;color:#555;font-size:12px}
 .center-card{background:#161822;border:1px solid #2a2d3a;border-radius:12px;padding:16px}
 .vs-title{font-size:11px;color:#666;text-align:center;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
@@ -91,8 +95,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
         <div class="mm-item"><div class="lbl">ランカーMIN推定</div><div class="num min-c" id="left-min">—</div></div>
       </div>
       <div class="ranker-list">
-        <div class="r-header"><span>指揮官名</span><span>兵科</span><span>推定1軍</span></div>
-        <div id="left-rankers"><div class="loading">連盟を選択してください</div></div>
+        <div class="ranker-list-header">
+          <div class="r-header"><span>指揮官名</span><span>兵科</span><span>推定1軍</span></div>
+        </div>
+        <div class="ranker-list-body" id="left-rankers"><div class="loading">連盟を選択してください</div></div>
       </div>
     </div>
 
@@ -145,8 +151,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
         <div class="mm-item"><div class="lbl">ランカーMIN推定</div><div class="num min-c" id="right-min">—</div></div>
       </div>
       <div class="ranker-list">
-        <div class="r-header"><span>指揮官名</span><span>兵科</span><span>推定1軍</span></div>
-        <div id="right-rankers"><div class="loading">連盟を選択してください</div></div>
+        <div class="ranker-list-header">
+          <div class="r-header"><span>指揮官名</span><span>兵科</span><span>推定1軍</span></div>
+        </div>
+        <div class="ranker-list-body" id="right-rankers"><div class="loading">連盟を選択してください</div></div>
       </div>
     </div>
   </div>
@@ -154,7 +162,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 
 <script>
 const GAS_URL='https://script.google.com/macros/s/AKfycbyrCsPDcpbPkoppGeqUmQM3mf8kO6gDW1_9D40q2KvkSSO9KRtgYBh5aMOZBksz3u0L9A/exec';
-let allData={comparison:[],rankers:[],comprehensive:[]};
+let allData={comparison:[],rankers:[],comprehensive:[],heroRankers:[]};
 let state={left:{zone:'',alliance:''},right:{zone:'',alliance:''}};
 
 async function fetchSheet(name){
@@ -164,14 +172,16 @@ async function fetchSheet(name){
 
 async function init(){
   try{
-    const[comp,rank,comp2]=await Promise.all([
+    const[comp,rank,comp2,heroRank]=await Promise.all([
       fetchSheet('BI_連盟比較'),
       fetchSheet('BI_指揮官1軍推定'),
-      fetchSheet('BI_連盟総合力')
+      fetchSheet('BI_連盟総合力'),
+      fetchSheet('BI_指揮官1軍推定_英雄総')
     ]);
     allData.comparison=comp;
     allData.rankers=rank;
     allData.comprehensive=comp2;
+    allData.heroRankers=heroRank;
     const zones=[...new Set(comp.map(r=>r['戦域']).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
     ['left-zone','right-zone'].forEach(id=>{
       const sel=document.getElementById(id);
@@ -250,15 +260,19 @@ function onAllianceChange(side){
   const zone=state[side].zone;
   const c2=allData.comprehensive.find(r=>r['連盟タグ']===alliance);
   const c1=allData.comparison.find(r=>String(r['戦域'])===String(zone)&&r['連盟名']===alliance);
-  document.getElementById(side+'-max').textContent=c2&&c2['ランカーMAX推定(M)']!=null?c2['ランカーMAX推定(M)']+'M':'—';
-  document.getElementById(side+'-min').textContent=c2&&c2['ランカーMIN推定(M)']!=null?c2['ランカーMIN推定(M)']+'M':'—';
-  const rankers=allData.rankers.filter(r=>r['連盟名']===alliance).slice(0,30);
+  const maxVal=c2&&c2['ランカーMAX推定(M)']!=null?c2['ランカーMAX推定(M)']+'M':'—';
+  const minVal=c2&&c2['ランカーMIN推定(M)']!=null&&c2['ランカーMIN推定(M)']!==0?c2['ランカーMIN推定(M)']+'M':'—';
+  document.getElementById(side+'-max').textContent=maxVal;
+  document.getElementById(side+'-min').textContent=minVal;
+  const rankers=allData.rankers.filter(r=>r['連盟名']===alliance).slice(0,50);
+  const heroRankers=allData.heroRankers.filter(r=>r['連盟タグ']===alliance||r['連盟名']===alliance).slice(0,50);
   const cont=document.getElementById(side+'-rankers');
-  // 20行分の固定高さを確保
   const FIXED_ROWS=20;
-  let html=rankers.map(r=>`<div class="ranker-item"><span class="r-name">${r['指揮官名']||'—'}</span><span class="r-class ${classStyle(r['兵科'])}">${r['兵科']||'—'}</span><span class="r-power">${r['1軍推定戦力(M)']||'—'}</span></div>`).join('');
-  // 20行未満の場合は空行で埋める
-  for(let i=rankers.length;i<FIXED_ROWS;i++){
+  let items=[];
+  rankers.forEach(r=>items.push({name:r['指揮官名'],class:r['兵科'],power:r['1軍推定戦力(M)'],type:'ranker'}));
+  heroRankers.forEach(r=>items.push({name:r['指揮官名'],class:r['兵科']||'—',power:r['1軍推定戦力(M)※参考値'],type:'hero'}));
+  let html=items.map(r=>`<div class="ranker-item${r.type==='hero'?' hero-only':''}"><span class="r-name">${r.name||'—'}</span><span class="r-class ${classStyle(r.class)}">${r.class||'—'}</span><span class="r-power">${r.power||'—'}</span></div>`).join('');
+  for(let i=items.length;i<FIXED_ROWS;i++){
     html+=`<div class="ranker-item"><span class="r-name" style="color:#2a2d3a">—</span><span class="r-class"></span><span class="r-power"></span></div>`;
   }
   cont.innerHTML=html||'<div class="loading">ランカーデータなし</div>';

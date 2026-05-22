@@ -261,7 +261,8 @@ function onAllianceChange(side){
   const c2=allData.comprehensive.find(r=>r['連盟タグ']===alliance);
   const c1=allData.comparison.find(r=>String(r['戦域'])===String(zone)&&r['連盟名']===alliance);
   const maxVal=c2&&c2['ランカーMAX推定(M)']!=null?c2['ランカーMAX推定(M)']+'M':'—';
-  const minVal=c2&&c2['ランカーMIN推定(M)']!=null&&c2['ランカーMIN推定(M)']!==0?c2['ランカーMIN推定(M)']+'M':'—';
+  const minRaw=c2?c2['ランカーMIN推定(M)']:null;
+  const minVal=minRaw!=null&&minRaw!==''&&Number(minRaw)!==0?Number(minRaw)+'M':'—';
   document.getElementById(side+'-max').textContent=maxVal;
   document.getElementById(side+'-min').textContent=minVal;
   const rankers=allData.rankers.filter(r=>r['連盟名']===alliance).slice(0,50);

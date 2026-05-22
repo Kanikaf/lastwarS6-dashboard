@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ラストウォー S6 連盟戦力比較</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',sans-serif;background:#0f1117;color:#e8eaf0;min-height:100vh}
+.dash{padding:1.5rem;max-width:1200px;margin:0 auto}
+.header{display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid #2a2d3a}
+.header h1{font-size:20px;font-weight:600;color:#e8eaf0;letter-spacing:0.5px}
+.badge{font-size:11px;padding:3px 10px;border-radius:20px;background:#1e3a5f;color:#5ba3f5;font-weight:600}
+.badge2{font-size:11px;padding:3px 10px;border-radius:20px;background:#1a1a2e;color:#888;font-weight:500}
+.update{font-size:11px;color:#555;margin-left:auto}
+.main-grid{display:grid;grid-template-columns:1fr 280px 1fr;gap:14px;align-items:start}
+.side-card{background:#161822;border:1px solid #2a2d3a;border-radius:12px;overflow:hidden}
+.side-card.left{border-top:3px solid #3b7dd8}
+.side-card.right{border-top:3px solid #d4851a}
+.side-header{padding:12px 14px;background:#1a1d2a;border-bottom:1px solid #2a2d3a}
+.side-header .team-label{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.sel-row{display:flex;gap:8px}
+.sel-row select{flex:1;font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid #333;background:#0f1117;color:#e8eaf0;cursor:pointer;outline:none;width:0;min-width:0}
+.sel-row select:focus{border-color:#3b7dd8}
+.minmax-row{display:grid;grid-template-columns:1fr 1fr;background:#1a1d2a;padding:8px 14px;border-bottom:1px solid #2a2d3a}
+.mm-item{text-align:center}
+.mm-item .lbl{font-size:9px;color:#555;margin-bottom:2px}
+.mm-item .num{font-size:13px;font-weight:600}
+.num.max-c{color:#5ba3f5}
+.num.min-c{color:#5bb87a}
+.ranker-list{padding:10px 14px;height:520px;overflow-y:auto}
+.ranker-list::-webkit-scrollbar{width:4px}
+.ranker-list::-webkit-scrollbar-track{background:#161822}
+.ranker-list::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+.r-header{display:grid;grid-template-columns:1fr 52px 68px;gap:4px;padding:0 0 5px;font-size:10px;color:#555;border-bottom:1px solid #2a2d3a;margin-bottom:4px}
+.r-header span:nth-child(2){text-align:center}
+.r-header span:nth-child(3){text-align:right}
+.ranker-item{display:grid;grid-template-columns:1fr 52px 68px;gap:4px;padding:5px 0;border-bottom:1px solid #1e2130;font-size:12px;height:26px;align-items:center}
+.ranker-item:last-child{border-bottom:none}
+.r-name{color:#c8cad8;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-class{color:#666;text-align:center}
+.r-class.tank{color:#5ba3f5}
+.r-class.air{color:#5bb87a}
+.r-class.rocket{color:#f5a623}
+.r-power{text-align:right;font-weight:600;color:#a78bfa}
+.loading{text-align:center;padding:1.5rem;color:#555;font-size:12px}
+.center-card{background:#161822;border:1px solid #2a2d3a;border-radius:12px;padding:16px}
+.vs-title{font-size:11px;color:#666;text-align:center;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+.vs-badge{text-align:center;margin-bottom:20px}
+.vs-badge span{font-size:16px;font-weight:700;color:#3b3d50;letter-spacing:4px}
+.bar-section{margin-bottom:18px}
+.bar-label{font-size:10px;color:#666;text-align:center;margin-bottom:8px;letter-spacing:0.5px}
+.bar-wrap{display:flex;align-items:center;gap:0;height:28px;background:#1a1d2a;border-radius:6px;overflow:hidden;position:relative}
+.bar-left{height:100%;display:flex;align-items:center;justify-content:flex-end;transition:width 0.5s ease;padding-right:6px}
+.bar-left.blue{background:#1e3a5f;border-right:2px solid #0f1117}
+.bar-right{height:100%;display:flex;align-items:center;justify-content:flex-start;transition:width 0.5s ease;padding-left:6px}
+.bar-right.amber{background:#3d2a0a;border-left:2px solid #0f1117}
+.bar-val-left{font-size:11px;font-weight:600;color:#5ba3f5;white-space:nowrap}
+.bar-val-right{font-size:11px;font-weight:600;color:#f5a623;white-space:nowrap}
+.bar-center{width:2px;background:#0f1117;flex-shrink:0;height:100%}
+</style>
+</head>
+<body>
+<div class="dash">
+  <div class="header">
+    <h1>連盟 戦力比較</h1>
+    <span class="badge">S6</span>
+    <span class="badge2">ラストウォー</span>
+    <span class="update" id="update-time">読み込み中...</span>
+  </div>
+  <div class="main-grid">
+    <div class="side-card left">
+      <div class="side-header">
+        <div class="team-label">自連盟</div>
+        <div class="sel-row">
+          <select id="left-zone" onchange="onZoneChange('left')"><option value="">戦域...</option></select>
+          <select id="left-alliance" onchange="onAllianceChange('left')"><option value="">連盟...</option></select>
+        </div>
+      </div>
+      <div class="minmax-row">
+        <div class="mm-item"><div class="lbl">ランカーMAX推定</div><div class="num max-c" id="left-max">—</div></div>
+        <div class="mm-item"><div class="lbl">ランカーMIN推定</div><div class="num min-c" id="left-min">—</div></div>
+      </div>
+      <div class="ranker-list">
+        <div class="r-header"><span>指揮官名</span><span>兵科</span><span>推定1軍</span></div>
+        <div id="left-rankers"><div class="loading">連盟を選択してください</div></div>
+      </div>
+    </div>
+
+    <div class="center-card">
+      <div class="vs-badge"><span>VS</span></div>
+      <div class="bar-section">
+        <div class="bar-label">連盟戦力指数（精鋭の強さ）</div>
+        <div class="bar-wrap" id="bw-power">
+          <div class="bar-left blue" id="bl-power" style="width:50%"><span class="bar-val-left" id="bv-left-power">—</span></div>
+          <div class="bar-center"></div>
+          <div class="bar-right amber" id="br-power" style="width:50%"><span class="bar-val-right" id="bv-right-power">—</span></div>
+        </div>
+      </div>
+      <div class="bar-section">
+        <div class="bar-label">連盟人数</div>
+        <div class="bar-wrap">
+          <div class="bar-left blue" id="bl-members" style="width:50%"><span class="bar-val-left" id="bv-left-members">—</span></div>
+          <div class="bar-center"></div>
+          <div class="bar-right amber" id="br-members" style="width:50%"><span class="bar-val-right" id="bv-right-members">—</span></div>
+        </div>
+      </div>
+      <div class="bar-section">
+        <div class="bar-label">最強英雄ランクイン人数</div>
+        <div class="bar-wrap">
+          <div class="bar-left blue" id="bl-rankers" style="width:50%"><span class="bar-val-left" id="bv-left-rankers">—</span></div>
+          <div class="bar-center"></div>
+          <div class="bar-right amber" id="br-rankers" style="width:50%"><span class="bar-val-right" id="bv-right-rankers">—</span></div>
+        </div>
+      </div>
+      <div class="bar-section">
+        <div class="bar-label">英雄総ランクイン人数</div>
+        <div class="bar-wrap">
+          <div class="bar-left blue" id="bl-hero" style="width:50%"><span class="bar-val-left" id="bv-left-hero">—</span></div>
+          <div class="bar-center"></div>
+          <div class="bar-right amber" id="br-hero" style="width:50%"><span class="bar-val-right" id="bv-right-hero">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-card right">
+      <div class="side-header">
+        <div class="team-label">対戦相手</div>
+        <div class="sel-row">
+          <select id="right-zone" onchange="onZoneChange('right')"><option value="">戦域...</option></select>
+          <select id="right-alliance" onchange="onAllianceChange('right')"><option value="">連盟...</option></select>
+        </div>
+      </div>
+      <div class="minmax-row">
+        <div class="mm-item"><div class="lbl">ランカーMAX推定</div><div class="num max-c" id="right-max">—</div></div>
+        <div class="mm-item"><div class="lbl">ランカーMIN推定</div><div class="num min-c" id="right-min">—</div></div>
+      </div>
+      <div class="ranker-list">
+        <div class="r-header"><span>指揮官名</span><span>兵科</span><span>推定1軍</span></div>
+        <div id="right-rankers"><div class="loading">連盟を選択してください</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const GAS_URL='https://script.google.com/macros/s/AKfycbyrCsPDcpbPkoppGeqUmQM3mf8kO6gDW1_9D40q2KvkSSO9KRtgYBh5aMOZBksz3u0L9A/exec';
+let allData={comparison:[],rankers:[],comprehensive:[]};
+let state={left:{zone:'',alliance:''},right:{zone:'',alliance:''}};
+
+async function fetchSheet(name){
+  const res=await fetch(GAS_URL+'?sheet='+encodeURIComponent(name));
+  return await res.json();
+}
+
+async function init(){
+  try{
+    const[comp,rank,comp2]=await Promise.all([
+      fetchSheet('BI_連盟比較'),
+      fetchSheet('BI_指揮官1軍推定'),
+      fetchSheet('BI_連盟総合力')
+    ]);
+    allData.comparison=comp;
+    allData.rankers=rank;
+    allData.comprehensive=comp2;
+    const zones=[...new Set(comp.map(r=>r['戦域']).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
+    ['left-zone','right-zone'].forEach(id=>{
+      const sel=document.getElementById(id);
+      zones.forEach(z=>{const o=document.createElement('option');o.value=z;o.textContent=z+'戦域';sel.appendChild(o);});
+    });
+    document.getElementById('update-time').textContent='更新: '+new Date().toLocaleTimeString('ja-JP');
+
+    // 前回の選択を復元
+    const savedLZ=localStorage.getItem('lw_left_zone');
+    const savedLA=localStorage.getItem('lw_left_alliance');
+    const savedRZ=localStorage.getItem('lw_right_zone');
+    const savedRA=localStorage.getItem('lw_right_alliance');
+
+    if(savedLZ){
+      document.getElementById('left-zone').value=savedLZ;
+      onZoneChange('left');
+      if(savedLA){
+        document.getElementById('left-alliance').value=savedLA;
+        onAllianceChange('left');
+      }
+    }
+    if(savedRZ){
+      document.getElementById('right-zone').value=savedRZ;
+      onZoneChange('right');
+      if(savedRA){
+        document.getElementById('right-alliance').value=savedRA;
+        onAllianceChange('right');
+      }
+    }
+  }catch(e){
+    document.getElementById('update-time').textContent='エラー: '+e.message;
+  }
+}
+
+function isValidAllianceName(name){
+  if(!name)return false;
+  // 日付文字列や異常に長い名前を除外
+  if(name.length>20)return false;
+  if(/^\d{4}-\d{2}-\d{2}/.test(name))return false;
+  if(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/.test(name))return false;
+  if(name==='-')return true;
+  return true;
+}
+
+function saveState(){
+  localStorage.setItem('lw_left_zone',state.left.zone);
+  localStorage.setItem('lw_left_alliance',state.left.alliance);
+  localStorage.setItem('lw_right_zone',state.right.zone);
+  localStorage.setItem('lw_right_alliance',state.right.alliance);
+}
+
+function onZoneChange(side){
+  const zone=document.getElementById(side+'-zone').value;
+  state[side].zone=zone;
+  const sel=document.getElementById(side+'-alliance');
+  sel.innerHTML='<option value="">連盟...</option>';
+  if(!zone)return;
+  const names=[...new Set(allData.comparison.filter(r=>String(r['戦域'])===String(zone)&&r['連盟名']&&isValidAllianceName(r['連盟名'])).map(r=>r['連盟名']))];
+  names.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;sel.appendChild(o);});
+  saveState();
+}
+
+function classStyle(c){
+  if(!c)return'';
+  if(c.includes('戦車'))return'tank';
+  if(c.includes('航空'))return'air';
+  if(c.includes('ロケラン'))return'rocket';
+  return'';
+}
+
+function onAllianceChange(side){
+  const alliance=document.getElementById(side+'-alliance').value;
+  state[side].alliance=alliance;
+  saveState();
+  if(!alliance)return;
+  const zone=state[side].zone;
+  const c2=allData.comprehensive.find(r=>r['連盟タグ']===alliance);
+  const c1=allData.comparison.find(r=>String(r['戦域'])===String(zone)&&r['連盟名']===alliance);
+  document.getElementById(side+'-max').textContent=c2&&c2['ランカーMAX推定(M)']!=null?c2['ランカーMAX推定(M)']+'M':'—';
+  document.getElementById(side+'-min').textContent=c2&&c2['ランカーMIN推定(M)']!=null?c2['ランカーMIN推定(M)']+'M':'—';
+  const rankers=allData.rankers.filter(r=>r['連盟名']===alliance).slice(0,30);
+  const cont=document.getElementById(side+'-rankers');
+  // 20行分の固定高さを確保
+  const FIXED_ROWS=20;
+  let html=rankers.map(r=>`<div class="ranker-item"><span class="r-name">${r['指揮官名']||'—'}</span><span class="r-class ${classStyle(r['兵科'])}">${r['兵科']||'—'}</span><span class="r-power">${r['1軍推定戦力(M)']||'—'}</span></div>`).join('');
+  // 20行未満の場合は空行で埋める
+  for(let i=rankers.length;i<FIXED_ROWS;i++){
+    html+=`<div class="ranker-item"><span class="r-name" style="color:#2a2d3a">—</span><span class="r-class"></span><span class="r-power"></span></div>`;
+  }
+  cont.innerHTML=html||'<div class="loading">ランカーデータなし</div>';
+  updateBars();
+}
+
+function setBar(leftId,rightId,lvId,rvId,lv,rv){
+  const total=(Number(lv)||0)+(Number(rv)||0);
+  const lp=total>0?Math.round((Number(lv)||0)/total*100):50;
+  const rp=total>0?Math.round((Number(rv)||0)/total*100):50;
+  document.getElementById(leftId).style.width=lp+'%';
+  document.getElementById(rightId).style.width=rp+'%';
+  document.getElementById(lvId).textContent=lv!=null&&lv!==''?lv:'—';
+  document.getElementById(rvId).textContent=rv!=null&&rv!==''?rv:'—';
+}
+
+function updateBars(){
+  const lz=state.left.zone,la=state.left.alliance;
+  const rz=state.right.zone,ra=state.right.alliance;
+  const lc2=allData.comprehensive.find(r=>r['連盟タグ']===la);
+  const rc2=allData.comprehensive.find(r=>r['連盟タグ']===ra);
+  const lc1=allData.comparison.find(r=>String(r['戦域'])===String(lz)&&r['連盟名']===la);
+  const rc1=allData.comparison.find(r=>String(r['戦域'])===String(rz)&&r['連盟名']===ra);
+  setBar('bl-power','br-power','bv-left-power','bv-right-power',lc2?lc2['連盟戦力指数']:null,rc2?rc2['連盟戦力指数']:null);
+  setBar('bl-members','br-members','bv-left-members','bv-right-members',lc2?lc2['連盟人数']:null,rc2?rc2['連盟人数']:null);
+  setBar('bl-rankers','br-rankers','bv-left-rankers','bv-right-rankers',lc1?lc1['最強英雄RankIn']:null,rc1?rc1['最強英雄RankIn']:null);
+  setBar('bl-hero','br-hero','bv-left-hero','bv-right-hero',lc1?lc1['英雄総RankIn']:null,rc1?rc1['英雄総RankIn']:null);
+}
+
+init();
+</script>
+</body>
+</html>

@@ -90,10 +90,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
           <select id="left-alliance" onchange="onAllianceChange('left')"><option value="">連盟...</option></select>
         </div>
       </div>
-      <div class="minmax-row">
-        <div class="mm-item"><div class="lbl">ランカーMAX推定</div><div class="num max-c" id="left-max">—</div></div>
-        <div class="mm-item"><div class="lbl">ランカーMIN推定</div><div class="num min-c" id="left-min">—</div></div>
-      </div>
+
       <div class="ranker-list">
         <div class="ranker-list-header">
           <div class="r-header"><span>指揮官名</span><span>兵科</span><span>推定1軍</span></div>
@@ -146,9 +143,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
           <select id="right-alliance" onchange="onAllianceChange('right')"><option value="">連盟...</option></select>
         </div>
       </div>
-      <div class="minmax-row">
+      <div class="minmax-row" style="grid-template-columns:1fr">
         <div class="mm-item"><div class="lbl">ランカーMAX推定</div><div class="num max-c" id="right-max">—</div></div>
-        <div class="mm-item"><div class="lbl">ランカーMIN推定</div><div class="num min-c" id="right-min">—</div></div>
       </div>
       <div class="ranker-list">
         <div class="ranker-list-header">
@@ -261,10 +257,7 @@ function onAllianceChange(side){
   const c2=allData.comprehensive.find(r=>r['連盟タグ']===alliance);
   const c1=allData.comparison.find(r=>String(r['戦域'])===String(zone)&&r['連盟名']===alliance);
   const maxVal=c2&&c2['ランカーMAX推定(M)']!=null?c2['ランカーMAX推定(M)']+'M':'—';
-  const minRaw=c2?c2['ランカーMIN推定(M)']:null;
-  const minVal=minRaw!=null&&minRaw!==''&&Number(minRaw)!==0?Number(minRaw)+'M':'—';
   document.getElementById(side+'-max').textContent=maxVal;
-  document.getElementById(side+'-min').textContent=minVal;
   const rankers=allData.rankers.filter(r=>r['連盟名']===alliance).slice(0,50);
   const heroRankers=allData.heroRankers.filter(r=>r['連盟タグ']===alliance||r['連盟名']===alliance).slice(0,50);
   const cont=document.getElementById(side+'-rankers');

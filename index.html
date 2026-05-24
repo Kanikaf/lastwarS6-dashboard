@@ -87,11 +87,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 .bar-val-left{font-size:11px;font-weight:600;color:#5ba3f5;white-space:nowrap}
 .bar-val-right{font-size:11px;font-weight:600;color:#f5a623;white-space:nowrap}
 .bar-center{width:2px;background:#0f1117;flex-shrink:0;height:100%}
-.pie-row{display:flex;justify-content:space-around;align-items:flex-start;gap:8px;margin-top:8px}
-.pie-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
-.pie-wrap canvas{max-width:110px;max-height:110px}
-.pie-legend{font-size:10px;color:#888;line-height:1.8;text-align:left}
-.pie-legend span{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.pie-row{display:flex;justify-content:space-around;align-items:center;gap:8px;margin-top:8px}
+.pie-wrap{display:flex;flex-direction:column;align-items:center;flex:1}
+.pie-wrap canvas{max-width:120px;max-height:120px}
+.pie-legend-common{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 12px;margin-top:10px;padding-top:8px;border-top:1px solid #2a2d3a}
+.pie-legend-common .leg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:#888}
+.pie-legend-common .leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
 .tab-nav{display:flex;gap:8px;margin-bottom:16px}
 .tab-btn{padding:7px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #2a2d3a;background:transparent;color:#666;transition:all 0.15s}
@@ -210,14 +211,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
         <div class="bar-label">Tier分布</div>
         <div class="pie-row">
           <div class="pie-wrap">
-            <canvas id="pie-left" width="110" height="110"></canvas>
-            <div class="pie-legend" id="pie-legend-left"></div>
+            <canvas id="pie-left" width="120" height="120"></canvas>
           </div>
           <div class="pie-wrap">
-            <canvas id="pie-right" width="110" height="110"></canvas>
-            <div class="pie-legend" id="pie-legend-right"></div>
+            <canvas id="pie-right" width="120" height="120"></canvas>
           </div>
         </div>
+        <div class="pie-legend-common" id="pie-legend-common"></div>
       </div>
     </div>
 
@@ -468,21 +468,27 @@ function getTierForPower(power, allSorted) {
   return 't6';
 }
 
-function drawPieChart(canvasId, legendId, tierCounts) {
+function drawPieChart(canvasId, tierCounts) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const total = Object.values(tierCounts).reduce((a,b) => a+b, 0);
+  const cx = canvas.width/2, cy = canvas.height/2, r = Math.min(cx,cy) - 4;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (total === 0) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    document.getElementById(legendId).innerHTML = '<span style="color:#555">データなし</span>';
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2*Math.PI);
+    ctx.fillStyle = '#2a2d3a';
+    ctx.fill();
+    ctx.fillStyle = '#555';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('—', cx, cy+4);
     return;
   }
-  const cx = canvas.width/2, cy = canvas.height/2, r = Math.min(cx, cy) - 4;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  let startAngle = -Math.PI / 2;
   const tiers = ['t1','t2','t3','t4','t5','t6'];
-  let legendHtml = '';
+  let startAngle = -Math.PI / 2;
+  // スライス描画
   tiers.forEach(t => {
     const count = tierCounts[t] || 0;
     if (count === 0) return;
@@ -493,13 +499,41 @@ function drawPieChart(canvasId, legendId, tierCounts) {
     ctx.closePath();
     ctx.fillStyle = TIER_COLORS[t];
     ctx.fill();
+    ctx.strokeStyle = '#0f1117';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
     startAngle += slice;
-    legendHtml += `<div><span style="background:${TIER_COLORS[t]}"></span>${TIER_LABELS[t]}: ${count}人</div>`;
   });
-  document.getElementById(legendId).innerHTML = legendHtml;
+  // スライスの中央に人数を描画
+  startAngle = -Math.PI / 2;
+  tiers.forEach(t => {
+    const count = tierCounts[t] || 0;
+    if (count === 0) return;
+    const slice = (count / total) * 2 * Math.PI;
+    if (slice < 0.35) { startAngle += slice; return; } // 小さすぎるスライスはスキップ
+    const midAngle = startAngle + slice / 2;
+    const tx = cx + (r * 0.62) * Math.cos(midAngle);
+    const ty = cy + (r * 0.62) * Math.sin(midAngle);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(count, tx, ty);
+    startAngle += slice;
+  });
+}
+
+function drawPieLegend() {
+  const tiers = ['t1','t2','t3','t4','t5','t6'];
+  const legendEl = document.getElementById('pie-legend-common');
+  if (!legendEl) return;
+  legendEl.innerHTML = tiers.map(t =>
+    `<div class="leg-item"><div class="leg-dot" style="background:${TIER_COLORS[t]}"></div>${TIER_LABELS[t]}</div>`
+  ).join('');
 }
 
 function updatePieCharts() {
+  drawPieLegend();
   const la = state.left.alliance;
   const ra = state.right.alliance;
   const heroData = allData.heroTotal || [];
@@ -515,7 +549,7 @@ function updatePieCharts() {
         counts[t]++;
       });
     }
-    drawPieChart('pie-'+side, 'pie-legend-'+side, counts);
+    drawPieChart('pie-'+side, counts);
   });
 }
 

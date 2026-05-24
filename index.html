@@ -192,20 +192,21 @@ async function fetchSheet(name){
 
 async function init(){
   try{
-    const[comp,rank,comp2,heroRank,alliPow,alliKill]=await Promise.all([
+    const[comp,rank,comp2,heroRank]=await Promise.all([
       fetchSheet('BI_連盟比較'),
       fetchSheet('BI_指揮官1軍推定'),
       fetchSheet('BI_連盟総合力'),
-      fetchSheet('BI_指揮官1軍推定_英雄総'),
-      fetchSheet('統合_連盟総戦力'),
-      fetchSheet('統合_連盟撃破数')
+      fetchSheet('BI_指揮官1軍推定_英雄総')
     ]);
     allData.comparison=comp;
     allData.rankers=rank;
     allData.comprehensive=comp2;
     allData.heroRankers=heroRank;
-    allData.alliancePower=alliPow;
-    allData.allianceKill=alliKill;
+    // 統合_連盟総戦力・統合_連盟撃破数はシートがない場合もある
+    try{ allData.alliancePower=await fetchSheet('統合_連盟総戦力'); }catch(e){ allData.alliancePower=[]; }
+    try{ allData.allianceKill=await fetchSheet('統合_連盟撃破数'); }catch(e){ allData.allianceKill=[]; }
+    if(!Array.isArray(allData.alliancePower)) allData.alliancePower=[];
+    if(!Array.isArray(allData.allianceKill)) allData.allianceKill=[];
     const zones=[...new Set(comp.map(r=>r['戦域']).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
     ['left-zone','right-zone'].forEach(id=>{
       const sel=document.getElementById(id);

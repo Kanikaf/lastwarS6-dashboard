@@ -81,6 +81,45 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 .bar-val-left{font-size:11px;font-weight:600;color:#5ba3f5;white-space:nowrap}
 .bar-val-right{font-size:11px;font-weight:600;color:#f5a623;white-space:nowrap}
 .bar-center{width:2px;background:#0f1117;flex-shrink:0;height:100%}
+
+.tab-nav{display:flex;gap:8px;margin-bottom:16px}
+.tab-btn{padding:7px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #2a2d3a;background:transparent;color:#666;transition:all 0.15s}
+.tab-btn.active{background:#1e3a5f;border-color:#3b7dd8;color:#5ba3f5}
+.tab-btn:hover:not(.active){border-color:#3b7dd8;color:#5ba3f5}
+
+.tier-wrap{max-width:800px}
+.tier-controls{margin-bottom:16px}
+.tier-filter-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tier-filter-row select{font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid #333;background:#0f1117;color:#e8eaf0;cursor:pointer;outline:none}
+.tier-total{font-size:12px;color:#555;margin-left:auto}
+
+.tier-group{margin-bottom:20px;background:#161822;border:1px solid #2a2d3a;border-radius:10px;overflow:hidden}
+.tier-group-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#1a1d2a;border-bottom:1px solid #2a2d3a}
+.tier-label{font-size:13px;font-weight:700}
+.tier-range{font-size:11px;color:#555}
+.tier-count{font-size:11px;color:#888;margin-left:auto}
+.tier-t1 .tier-label{color:#ff4d4d}
+.tier-t2 .tier-label{color:#ff9544}
+.tier-t3 .tier-label{color:#ffd166}
+.tier-t4 .tier-label{color:#5bb87a}
+.tier-t5 .tier-label{color:#5ba3f5}
+.tier-t6 .tier-label{color:#666}
+.tier-t1{border-left:3px solid #ff4d4d}
+.tier-t2{border-left:3px solid #ff9544}
+.tier-t3{border-left:3px solid #ffd166}
+.tier-t4{border-left:3px solid #5bb87a}
+.tier-t5{border-left:3px solid #5ba3f5}
+.tier-t6{border-left:3px solid #333}
+
+.tier-rows{padding:8px 0}
+.tier-row{display:grid;grid-template-columns:48px 64px 1fr 80px;gap:8px;padding:4px 14px;font-size:12px;border-bottom:1px solid #1e2130;align-items:center}
+.tier-row:last-child{border-bottom:none}
+.tr-zone{color:#555;font-size:11px}
+.tr-alliance{color:#888;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr-name{color:#c8cad8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr-power{text-align:right;color:#a78bfa;font-weight:600;font-size:11px}
+.tier-collapsed .tier-rows{display:none}
+.tier-toggle{cursor:pointer;font-size:10px;color:#555;margin-left:6px}
 </style>
 </head>
 <body>
@@ -91,6 +130,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
     <span class="badge2">ラストウォー</span>
     <span class="update" id="update-time">読み込み中...</span>
   </div>
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('compare')">⚔️ 連盟比較</button>
+    <button class="tab-btn" onclick="switchTab('tier')">📊 Tier分析</button>
+  </div>
+  <div id="tab-compare" class="tab-content">
   <div class="main-grid">
     <div class="side-card left">
       <div class="side-header">
@@ -179,6 +223,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
     </div>
   </div>
 </div>
+  </div><!-- /tab-compare -->
+
+  <div id="tab-tier" class="tab-content" style="display:none;">
+    <div class="tier-wrap">
+      <div class="tier-controls">
+        <div class="tier-filter-row">
+          <select id="tier-zone-filter" onchange="renderTier()">
+            <option value="">全戦域</option>
+          </select>
+          <select id="tier-alliance-filter" onchange="renderTier()">
+            <option value="">全連盟</option>
+          </select>
+          <span class="tier-total" id="tier-total"></span>
+        </div>
+      </div>
+      <div id="tier-list"><div class="loading">データを読み込み中...</div></div>
+    </div>
+  </div><!-- /tab-tier -->
+
+</div>
 
 <script>
 const GAS_URL='https://script.google.com/macros/s/AKfycbyrCsPDcpbPkoppGeqUmQM3mf8kO6gDW1_9D40q2KvkSSO9KRtgYBh5aMOZBksz3u0L9A/exec';
@@ -202,11 +266,14 @@ async function init(){
     allData.rankers=rank;
     allData.comprehensive=comp2;
     allData.heroRankers=heroRank;
-    // 統合_連盟総戦力・統合_連盟撃破数はシートがない場合もある
+    // 統合_連盟総戦力・統合_連盟撃破数・統合_英雄総戦力はシートがない場合もある
     try{ allData.alliancePower=await fetchSheet('統合_連盟総戦力'); }catch(e){ allData.alliancePower=[]; }
     try{ allData.allianceKill=await fetchSheet('統合_連盟撃破数'); }catch(e){ allData.allianceKill=[]; }
+    try{ allData.heroTotal=await fetchSheet('統合_英雄総戦力'); }catch(e){ allData.heroTotal=[]; }
     if(!Array.isArray(allData.alliancePower)) allData.alliancePower=[];
     if(!Array.isArray(allData.allianceKill)) allData.allianceKill=[];
+    if(!Array.isArray(allData.heroTotal)) allData.heroTotal=[];
+    initTierFilters();
     const zones=[...new Set(comp.map(r=>r['戦域']).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
     ['left-zone','right-zone'].forEach(id=>{
       const sel=document.getElementById(id);
@@ -355,6 +422,131 @@ document.querySelectorAll('.ranker-list-body').forEach(el=>{
     else{e.stopPropagation();}
   },{passive:false});
 });
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+  document.getElementById('tab-' + tab).style.display = 'block';
+  event.target.classList.add('active');
+  if (tab === 'tier') renderTier();
+}
+
+function formatM(val) {
+  if (!val || isNaN(val)) return '—';
+  return (Number(val) / 1e6).toFixed(1) + 'M';
+}
+
+function renderTier() {
+  const zoneFilter = document.getElementById('tier-zone-filter').value;
+  const alliFilter = document.getElementById('tier-alliance-filter').value;
+
+  let data = allData.heroTotal || [];
+  if (!data.length) {
+    document.getElementById('tier-list').innerHTML = '<div class="loading">統合_英雄総戦力のデータがありません</div>';
+    return;
+  }
+
+  // フィルタ
+  let filtered = data;
+  if (zoneFilter) filtered = filtered.filter(r => String(r['戦域番号']) === String(zoneFilter));
+  if (alliFilter) filtered = filtered.filter(r => r['連盟コード'] === alliFilter);
+
+  // 戦力でソート
+  filtered = filtered.filter(r => r['戦力'] > 0)
+    .sort((a, b) => Number(b['戦力']) - Number(a['戦力']));
+
+  const total = filtered.length;
+  document.getElementById('tier-total').textContent = '合計 ' + total + '人';
+
+  // Tier境界（全データ基準）
+  const allSorted = data.filter(r => r['戦力'] > 0).sort((a, b) => Number(b['戦力']) - Number(a['戦力']));
+  const n = allSorted.length;
+  const thresholds = [
+    { key: 't1', label: 'Tier 1', pct: 0.02 },
+    { key: 't2', label: 'Tier 2', pct: 0.10 },
+    { key: 't3', label: 'Tier 3', pct: 0.30 },
+    { key: 't4', label: 'Tier 4', pct: 0.60 },
+    { key: 't5', label: 'Tier 5', pct: 0.80 },
+    { key: 't6', label: 'Tier 6', pct: 1.00 },
+  ];
+
+  // 各Tierの最低戦力を計算
+  const tierBounds = thresholds.map((t, i) => {
+    const idx = Math.floor(n * t.pct) - 1;
+    const minPower = idx >= 0 && idx < n ? Number(allSorted[idx]['戦力']) : 0;
+    const prevIdx = i > 0 ? Math.floor(n * thresholds[i-1].pct) - 1 : -1;
+    const maxPower = prevIdx >= 0 ? Number(allSorted[prevIdx]['戦力']) : Number(allSorted[0]['戦力']);
+    return { ...t, minPower, maxPower };
+  });
+
+  // 各指揮官のTierを判定
+  function getTier(power) {
+    const p = Number(power);
+    const rank = allSorted.findIndex(r => Number(r['戦力']) <= p);
+    const pct = rank / n;
+    if (pct < 0.02) return 't1';
+    if (pct < 0.10) return 't2';
+    if (pct < 0.30) return 't3';
+    if (pct < 0.60) return 't4';
+    if (pct < 0.80) return 't5';
+    return 't6';
+  }
+
+  // グループ化
+  const groups = { t1:[], t2:[], t3:[], t4:[], t5:[], t6:[] };
+  filtered.forEach(r => {
+    const tier = getTier(r['戦力']);
+    groups[tier].push(r);
+  });
+
+  let html = '';
+  thresholds.forEach((t, i) => {
+    const rows = groups[t.key];
+    const bound = tierBounds[i];
+    const prevPct = i > 0 ? thresholds[i-1].pct * 100 : 0;
+    const pctLabel = i === 0 ? '上位2%' : `上位${prevPct.toFixed(0)}%〜${(t.pct*100).toFixed(0)}%`;
+    const powerLabel = bound.minPower > 0 ? formatM(bound.minPower) + '以上' : '';
+
+    html += `<div class="tier-group tier-${t.key}" id="tg-${t.key}">
+      <div class="tier-group-header" onclick="toggleTier('${t.key}')">
+        <span class="tier-label">${t.label}</span>
+        <span class="tier-range">${pctLabel}${powerLabel ? ' · ' + powerLabel : ''}</span>
+        <span class="tier-count">${rows.length}人</span>
+        <span class="tier-toggle" id="tt-${t.key}">▼</span>
+      </div>
+      <div class="tier-rows">`;
+
+    rows.forEach(r => {
+      html += `<div class="tier-row">
+        <span class="tr-zone">#${r['戦域番号']}</span>
+        <span class="tr-alliance">${r['連盟コード']||'—'}</span>
+        <span class="tr-name">${r['指揮官名']||'—'}</span>
+        <span class="tr-power">${formatM(r['戦力'])}</span>
+      </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  document.getElementById('tier-list').innerHTML = html || '<div class="loading">データなし</div>';
+}
+
+function toggleTier(key) {
+  const group = document.getElementById('tg-' + key);
+  const toggle = document.getElementById('tt-' + key);
+  group.classList.toggle('tier-collapsed');
+  toggle.textContent = group.classList.contains('tier-collapsed') ? '▶' : '▼';
+}
+
+function initTierFilters() {
+  const data = allData.heroTotal || [];
+  const zones = [...new Set(data.map(r => r['戦域番号']).filter(Boolean))].sort((a,b) => Number(a)-Number(b));
+  const alliances = [...new Set(data.map(r => r['連盟コード']).filter(Boolean))].sort();
+  const zSel = document.getElementById('tier-zone-filter');
+  const aSel = document.getElementById('tier-alliance-filter');
+  zones.forEach(z => { const o = document.createElement('option'); o.value=z; o.textContent=z+'戦域'; zSel.appendChild(o); });
+  alliances.forEach(a => { const o = document.createElement('option'); o.value=a; o.textContent=a; aSel.appendChild(o); });
+}
 
 init();
 </script>

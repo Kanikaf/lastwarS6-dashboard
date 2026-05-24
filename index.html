@@ -329,6 +329,20 @@ function showDashboard() {
 }
 
 async function initAuth() {
+  // マスターアクセス確認
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('master') === 'Kanikaf2026BxD') {
+    showDashboard();
+    return;
+  }
+
+  // マスターアクセス（URLパラメータ ?master=BxD）
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('master') === 'BxD') {
+    showDashboard();
+    return;
+  }
+
   const savedCode = localStorage.getItem('lw_invite_code');
   const uid = getUID();
   if (savedCode) {

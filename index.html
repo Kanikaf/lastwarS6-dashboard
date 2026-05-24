@@ -141,7 +141,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 </style>
 </head>
 <body>
-<div class="dash">
+<div id="authScreen" style="position:fixed;inset:0;background:#0f1117;display:flex;align-items:center;justify-content:center;z-index:9999">
+  <div style="background:#161822;border:1px solid #2a2d3a;border-radius:16px;padding:40px 36px;width:320px;text-align:center">
+    <div style="font-size:36px;margin-bottom:12px">⚔️</div>
+    <h2 style="font-size:18px;font-weight:600;color:#fff;margin-bottom:6px">ラストウォー S6</h2>
+    <p style="font-size:13px;color:#7880a0;margin-bottom:24px">招待コードを入力してください</p>
+    <input type="text" id="inviteInput" placeholder="例: BxD-XXXX-XXX"
+      style="width:100%;padding:10px 14px;background:#22263a;border:1px solid #2e3350;border-radius:8px;color:#e8eaf0;font-size:14px;text-align:center;outline:none;margin-bottom:14px;letter-spacing:1px"
+      onkeydown="if(event.key==='Enter')checkInviteCode()">
+    <div id="authError" style="color:#ff6b6b;font-size:12px;margin-bottom:10px;display:none"></div>
+    <button onclick="checkInviteCode()"
+      style="width:100%;padding:10px;background:#4f7cff;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:600;cursor:pointer">
+      アクセス
+    </button>
+  </div>
+</div>
+<div class="dash" id="mainDash" style="display:none">
   <div class="header">
     <h1>連盟 戦力比較</h1>
     <span class="badge">S6</span>
@@ -270,6 +285,64 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 const GAS_URL='https://script.google.com/macros/s/AKfycbyrCsPDcpbPkoppGeqUmQM3mf8kO6gDW1_9D40q2KvkSSO9KRtgYBh5aMOZBksz3u0L9A/exec';
 let allData={comparison:[],rankers:[],comprehensive:[],heroRankers:[],alliancePower:[],allianceKill:[],heroTotal:[]};
 let state={left:{zone:'',alliance:''},right:{zone:'',alliance:''}};
+
+// ---- 招待コード認証 ----
+const GAS_URL_AUTH = GAS_URL; // 同じGAS URL
+
+async function checkInviteCode() {
+  const code = document.getElementById('inviteInput').value.trim();
+  if (!code) return;
+  const errEl = document.getElementById('authError');
+  errEl.style.display = 'none';
+
+  // ローカルに保存済みコードがあればそれを使う
+  try {
+    const res = await fetch(GAS_URL + '?action=auth&code=' + encodeURIComponent(code) + '&uid=' + getUID());
+    const json = await res.json();
+    if (json.status === 'ok') {
+      localStorage.setItem('lw_invite_code', code);
+      localStorage.setItem('lw_uid', getUID());
+      showDashboard();
+    } else {
+      errEl.textContent = json.message || '無効なコードです';
+      errEl.style.display = 'block';
+    }
+  } catch(e) {
+    errEl.textContent = '接続エラー: ' + e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+function getUID() {
+  let uid = localStorage.getItem('lw_uid');
+  if (!uid) {
+    uid = 'u-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+    localStorage.setItem('lw_uid', uid);
+  }
+  return uid;
+}
+
+function showDashboard() {
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('mainDash').style.display = 'block';
+  init();
+}
+
+async function initAuth() {
+  const savedCode = localStorage.getItem('lw_invite_code');
+  const uid = getUID();
+  if (savedCode) {
+    try {
+      const res = await fetch(GAS_URL + '?action=auth&code=' + encodeURIComponent(savedCode) + '&uid=' + uid);
+      const json = await res.json();
+      if (json.status === 'ok') {
+        showDashboard();
+        return;
+      }
+    } catch(e) {}
+  }
+  document.getElementById('authScreen').style.display = 'flex';
+}
 
 async function fetchSheet(name){
   const res=await fetch(GAS_URL+'?sheet='+encodeURIComponent(name));
@@ -712,7 +785,8 @@ function updateTierAllianceFilter() {
   if (alliances.includes(current)) aSel.value = current;
 }
 
-init();
+initAuth();
 </script>
+</div>
 </body>
 </html>

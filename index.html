@@ -31,6 +31,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 .sel-row{display:flex;gap:8px}
 .sel-row select{flex:1;font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid #333;background:#0f1117;color:#e8eaf0;cursor:pointer;outline:none;width:0;min-width:0}
 .sel-row select:focus{border-color:#3b7dd8}
+
+/* 基礎データエリア */
+.basic-stats{display:grid;grid-template-columns:1fr 1fr 1fr;background:#12141f;border-bottom:1px solid #2a2d3a;padding:8px 14px;gap:4px}
+.bs-item{text-align:center}
+.bs-item .lbl{font-size:9px;color:#555;margin-bottom:3px;letter-spacing:0.5px}
+.bs-item .val{font-size:12px;font-weight:600;color:#c8cad8}
+.bs-item .val.members{color:#5bb87a}
+.bs-item .val.power{color:#a78bfa}
+.bs-item .val.kill{color:#f5a623}
+
 .minmax-row{display:grid;grid-template-columns:1fr 1fr;background:#1a1d2a;padding:8px 14px;border-bottom:1px solid #2a2d3a}
 .mm-item{text-align:center}
 .mm-item .lbl{font-size:9px;color:#555;margin-bottom:2px}
@@ -90,6 +100,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
           <select id="left-alliance" onchange="onAllianceChange('left')"><option value="">連盟...</option></select>
         </div>
       </div>
+      <div class="basic-stats" id="left-basic">
+        <div class="bs-item"><div class="lbl">連盟人数</div><div class="val members" id="left-bs-members">—</div></div>
+        <div class="bs-item"><div class="lbl">連盟総戦力(B)</div><div class="val power" id="left-bs-power">—</div></div>
+        <div class="bs-item"><div class="lbl">撃破数(B)</div><div class="val kill" id="left-bs-kill">—</div></div>
+      </div>
       <div class="minmax-row">
         <div class="mm-item"><div class="lbl">ランカーMAX推定</div><div class="num max-c" id="left-max">—</div></div>
         <div class="mm-item"><div class="lbl">ランカーMIN推定</div><div class="num min-c" id="left-min">—</div></div>
@@ -146,6 +161,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
           <select id="right-alliance" onchange="onAllianceChange('right')"><option value="">連盟...</option></select>
         </div>
       </div>
+      <div class="basic-stats" id="right-basic">
+        <div class="bs-item"><div class="lbl">連盟人数</div><div class="val members" id="right-bs-members">—</div></div>
+        <div class="bs-item"><div class="lbl">連盟総戦力(B)</div><div class="val power" id="right-bs-power">—</div></div>
+        <div class="bs-item"><div class="lbl">撃破数(B)</div><div class="val kill" id="right-bs-kill">—</div></div>
+      </div>
       <div class="minmax-row">
         <div class="mm-item"><div class="lbl">ランカーMAX推定</div><div class="num max-c" id="right-max">—</div></div>
         <div class="mm-item"><div class="lbl">ランカーMIN推定</div><div class="num min-c" id="right-min">—</div></div>
@@ -162,7 +182,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 
 <script>
 const GAS_URL='https://script.google.com/macros/s/AKfycbyrCsPDcpbPkoppGeqUmQM3mf8kO6gDW1_9D40q2KvkSSO9KRtgYBh5aMOZBksz3u0L9A/exec';
-let allData={comparison:[],rankers:[],comprehensive:[],heroRankers:[]};
+let allData={comparison:[],rankers:[],comprehensive:[],heroRankers:[],alliancePower:[],allianceKill:[]};
 let state={left:{zone:'',alliance:''},right:{zone:'',alliance:''}};
 
 async function fetchSheet(name){
@@ -172,16 +192,20 @@ async function fetchSheet(name){
 
 async function init(){
   try{
-    const[comp,rank,comp2,heroRank]=await Promise.all([
+    const[comp,rank,comp2,heroRank,alliPow,alliKill]=await Promise.all([
       fetchSheet('BI_連盟比較'),
       fetchSheet('BI_指揮官1軍推定'),
       fetchSheet('BI_連盟総合力'),
-      fetchSheet('BI_指揮官1軍推定_英雄総')
+      fetchSheet('BI_指揮官1軍推定_英雄総'),
+      fetchSheet('統合_連盟総戦力'),
+      fetchSheet('統合_連盟撃破数')
     ]);
     allData.comparison=comp;
     allData.rankers=rank;
     allData.comprehensive=comp2;
     allData.heroRankers=heroRank;
+    allData.alliancePower=alliPow;
+    allData.allianceKill=alliKill;
     const zones=[...new Set(comp.map(r=>r['戦域']).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
     ['left-zone','right-zone'].forEach(id=>{
       const sel=document.getElementById(id);
@@ -197,18 +221,12 @@ async function init(){
     if(savedLZ){
       document.getElementById('left-zone').value=savedLZ;
       onZoneChange('left');
-      if(savedLA){
-        document.getElementById('left-alliance').value=savedLA;
-        onAllianceChange('left');
-      }
+      if(savedLA){document.getElementById('left-alliance').value=savedLA;onAllianceChange('left');}
     }
     if(savedRZ){
       document.getElementById('right-zone').value=savedRZ;
       onZoneChange('right');
-      if(savedRA){
-        document.getElementById('right-alliance').value=savedRA;
-        onAllianceChange('right');
-      }
+      if(savedRA){document.getElementById('right-alliance').value=savedRA;onAllianceChange('right');}
     }
   }catch(e){
     document.getElementById('update-time').textContent='エラー: '+e.message;
@@ -250,6 +268,15 @@ function classStyle(c){
   return'';
 }
 
+function formatB(val){
+  if(val==null||val===''||val===0)return'—';
+  const n=Number(val);
+  if(isNaN(n)||n===0)return'—';
+  if(n>=1e9)return(n/1e9).toFixed(2)+'B';
+  if(n>=1e6)return(n/1e6).toFixed(0)+'M';
+  return n.toLocaleString();
+}
+
 function onAllianceChange(side){
   const alliance=document.getElementById(side+'-alliance').value;
   state[side].alliance=alliance;
@@ -257,12 +284,23 @@ function onAllianceChange(side){
   if(!alliance)return;
   const zone=state[side].zone;
   const c2=allData.comprehensive.find(r=>r['連盟タグ']===alliance);
-  const c1=allData.comparison.find(r=>String(r['戦域'])===String(zone)&&r['連盟名']===alliance);
   const maxVal=c2&&c2['ランカーMAX推定(M)']!=null?c2['ランカーMAX推定(M)']+'M':'—';
   const minRaw=c2?c2['ランカーMIN推定(M)']:null;
   const minVal=minRaw!=null&&minRaw!==''&&Number(minRaw)!==0?Number(minRaw)+'M':'—';
   document.getElementById(side+'-max').textContent=maxVal;
   document.getElementById(side+'-min').textContent=minVal;
+
+  // 基礎データ更新
+  const members=c2?c2['連盟人数']:null;
+  // 連盟総戦力（統合_連盟総戦力から該当戦域・連盟タグで検索）
+  const powRow=allData.alliancePower.find(r=>String(r['戦域番号'])===String(zone)&&r['連盟コード']===alliance);
+  // 撃破数（統合_連盟撃破数から検索）
+  const killRow=allData.allianceKill.find(r=>String(r['戦域番号'])===String(zone)&&r['連盟コード']===alliance);
+
+  document.getElementById(side+'-bs-members').textContent=members||'—';
+  document.getElementById(side+'-bs-power').textContent=powRow?formatB(powRow['戦力']):'—';
+  document.getElementById(side+'-bs-kill').textContent=killRow?formatB(killRow['撃破数']):'—';
+
   const rankers=allData.rankers.filter(r=>r['連盟名']===alliance).slice(0,50);
   const heroRankers=allData.heroRankers.filter(r=>r['連盟タグ']===alliance||r['連盟名']===alliance).slice(0,50);
   const cont=document.getElementById(side+'-rankers');
@@ -301,7 +339,6 @@ function updateBars(){
   setBar('bl-hero','br-hero','bv-left-hero','bv-right-hero',lc1?lc1['英雄総RankIn']:null,rc1?rc1['英雄総RankIn']:null);
 }
 
-// iOSスクロール修正
 document.querySelectorAll('.ranker-list-body').forEach(el=>{
   let startY=0;
   el.addEventListener('touchstart',function(e){
@@ -313,11 +350,8 @@ document.querySelectorAll('.ranker-list-body').forEach(el=>{
     const delta=startY-e.touches[0].clientY;
     const atTop=this.scrollTop<=0;
     const atBottom=this.scrollTop+this.offsetHeight>=this.scrollHeight;
-    if((atTop&&delta<0)||(atBottom&&delta>0)){
-      e.preventDefault();
-    }else{
-      e.stopPropagation();
-    }
+    if((atTop&&delta<0)||(atBottom&&delta>0)){e.preventDefault();}
+    else{e.stopPropagation();}
   },{passive:false});
 });
 

@@ -303,7 +303,6 @@ function updateBars(){
   setBar('bl-hero','br-hero','bv-left-hero','bv-right-hero',lc1?lc1['英雄総RankIn']:null,rc1?rc1['英雄総RankIn']:null);
 }
 
-init();
 // iOSスクロール修正
 document.querySelectorAll('.ranker-list-body').forEach(el => {
   el.addEventListener('touchstart', function(e) {
@@ -314,6 +313,8 @@ document.querySelectorAll('.ranker-list-body').forEach(el => {
     e.stopPropagation();
   }, { passive: true });
 });
+  
+init();
 </script>
 </body>
 </html>

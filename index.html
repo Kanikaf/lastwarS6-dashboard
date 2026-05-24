@@ -304,6 +304,16 @@ function updateBars(){
 }
 
 init();
+// iOSスクロール修正
+document.querySelectorAll('.ranker-list-body').forEach(el => {
+  el.addEventListener('touchstart', function(e) {
+    if (this.scrollTop === 0) this.scrollTop = 1;
+    if (this.scrollTop + this.offsetHeight >= this.scrollHeight) this.scrollTop -= 1;
+  }, { passive: false });
+  el.addEventListener('touchmove', function(e) {
+    e.stopPropagation();
+  }, { passive: true });
+});
 </script>
 </body>
 </html>

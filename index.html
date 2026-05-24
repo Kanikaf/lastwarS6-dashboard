@@ -229,7 +229,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
     <div class="tier-wrap">
       <div class="tier-controls">
         <div class="tier-filter-row">
-          <select id="tier-zone-filter" onchange="renderTier()">
+          <select id="tier-zone-filter" onchange="updateTierAllianceFilter();renderTier()">
             <option value="">全戦域</option>
           </select>
           <select id="tier-alliance-filter" onchange="renderTier()">
@@ -541,11 +541,21 @@ function toggleTier(key) {
 function initTierFilters() {
   const data = allData.heroTotal || [];
   const zones = [...new Set(data.map(r => r['戦域番号']).filter(Boolean))].sort((a,b) => Number(a)-Number(b));
-  const alliances = [...new Set(data.map(r => r['連盟コード']).filter(Boolean))].sort();
   const zSel = document.getElementById('tier-zone-filter');
-  const aSel = document.getElementById('tier-alliance-filter');
   zones.forEach(z => { const o = document.createElement('option'); o.value=z; o.textContent=z+'戦域'; zSel.appendChild(o); });
+  updateTierAllianceFilter();
+}
+
+function updateTierAllianceFilter() {
+  const data = allData.heroTotal || [];
+  const zoneFilter = document.getElementById('tier-zone-filter').value;
+  const aSel = document.getElementById('tier-alliance-filter');
+  const current = aSel.value;
+  aSel.innerHTML = '<option value="">全連盟</option>';
+  const filtered = zoneFilter ? data.filter(r => String(r['戦域番号']) === String(zoneFilter)) : data;
+  const alliances = [...new Set(filtered.map(r => r['連盟コード']).filter(Boolean))].sort();
   alliances.forEach(a => { const o = document.createElement('option'); o.value=a; o.textContent=a; aSel.appendChild(o); });
+  if (alliances.includes(current)) aSel.value = current;
 }
 
 init();

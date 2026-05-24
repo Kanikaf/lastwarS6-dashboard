@@ -96,6 +96,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 .tb-bar-right{height:100%;display:flex;align-items:center;justify-content:flex-start;padding-left:5px;border-left:2px solid #0f1117;transition:width 0.4s ease}
 .tb-num-left{font-size:11px;font-weight:600;color:#5ba3f5;white-space:nowrap}
 .tb-num-right{font-size:11px;font-weight:600;color:#f5a623;white-space:nowrap}
+.tier-info-btn{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:#2a2d3a;color:#666;font-size:9px;cursor:pointer;margin-left:5px;vertical-align:middle;user-select:none}
+.tier-info-btn:hover{background:#3a3d4a;color:#aaa}
+.tier-tip{font-size:10px;color:#aaa;background:#1a1d2a;border:1px solid #2a2d3a;border-radius:5px;padding:4px 8px;margin-top:2px;text-align:center}
 
 .tab-nav{display:flex;gap:8px;margin-bottom:16px}
 .tab-btn{padding:7px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #2a2d3a;background:transparent;color:#666;transition:all 0.15s}
@@ -463,32 +466,81 @@ function getTierForPower(power, allSorted) {
   return 't6';
 }
 
-function renderTierBars(leftCounts, rightCounts) {
+// Tier別のミュートカラー（左：暗め青みがかった色、右：暗めアンバーがかった色）
+const TIER_BAR_LEFT = {
+  t1: '#4a1a1a', t2: '#4a2a10', t3: '#3a3010',
+  t4: '#1a3020', t5: '#1a2a40', t6: '#252525'
+};
+const TIER_BAR_RIGHT = {
+  t1: '#3a1010', t2: '#3a2008', t3: '#2a2808',
+  t4: '#102518', t5: '#102035', t6: '#1e1e1e'
+};
+const TIER_BAR_LEFT_BORDER = {
+  t1: '#8a3030', t2: '#8a5020', t3: '#7a6018',
+  t4: '#2a6040', t5: '#2a5080', t6: '#444'
+};
+const TIER_BAR_RIGHT_BORDER = {
+  t1: '#6a2020', t2: '#6a3a10', t3: '#5a4a10',
+  t4: '#1a4a28', t5: '#1a3860', t6: '#333'
+};
+
+// Tier境界値テキスト（updatePieChartsで動的に計算して更新）
+let tierThresholdText = {
+  t1:'上位2%', t2:'上位2〜10%', t3:'上位10〜30%',
+  t4:'上位30〜60%', t5:'上位60〜80%', t6:'上位80%以下'
+};
+
+function renderTierBars(leftCounts, rightCounts, allSorted) {
   const el = document.getElementById('tier-bars');
   if (!el) return;
+  // 境界値を計算
+  const n = allSorted ? allSorted.length : 0;
+  const pcts = [0.02, 0.10, 0.30, 0.60, 0.80];
+  const thresholds = pcts.map(p => {
+    const idx = Math.floor(n * p) - 1;
+    return idx >= 0 && idx < n ? (Number(allSorted[idx]['戦力']) / 1e6).toFixed(0) + 'M' : '—';
+  });
+  tierThresholdText = {
+    t1: `上位2%（${thresholds[1]}以上）`,
+    t2: `上位2〜10%（${thresholds[2]}〜${thresholds[1]}）`,
+    t3: `上位10〜30%（${thresholds[3]}〜${thresholds[2]}）`,
+    t4: `上位30〜60%（${thresholds[4]}〜${thresholds[3]}）`,
+    t5: `上位60〜80%（〜${thresholds[4]}）`,
+    t6: `上位80%以下`
+  };
+
   const tiers = ['t1','t2','t3','t4','t5','t6'];
-  const total = (lc, rc) => (lc||0) + (rc||0);
   let html = '';
   tiers.forEach(t => {
     const lc = leftCounts[t] || 0;
     const rc = rightCounts[t] || 0;
-    const tot = total(lc, rc);
+    const tot = lc + rc;
     const lp = tot > 0 ? Math.round((lc / tot) * 100) : 50;
     const rp = tot > 0 ? Math.round((rc / tot) * 100) : 50;
     const color = TIER_COLORS[t];
+    const tip = tierThresholdText[t].replace(/'/g, '&apos;');
     html += `<div class="tb-row">
-      <div class="tb-label-row"><span class="tb-label" style="color:${color}">${TIER_LABELS[t]}</span></div>
+      <div class="tb-label-row">
+        <span class="tb-label" style="color:${color}">${TIER_LABELS[t]}</span>
+        <span class="tier-info-btn" onclick="toggleTierTip(this)" data-tip="${tip}">ℹ</span>
+        <span class="tier-tip" style="display:none">${tip}</span>
+      </div>
       <div class="tb-bar-wrap">
-        <div class="tb-bar-left" style="width:${lp}%;background:#1e3a5f">
-          ${lc > 0 ? `<span class="tb-num-left">${lc}</span>` : ''}
+        <div class="tb-bar-left" style="width:${lp}%;background:${TIER_BAR_LEFT[t]};border-right:2px solid ${TIER_BAR_LEFT_BORDER[t]}">
+          <span class="tb-num-left">${lc}</span>
         </div>
-        <div class="tb-bar-right" style="width:${rp}%;background:#3d2a0a">
-          ${rc > 0 ? `<span class="tb-num-right">${rc}</span>` : ''}
+        <div class="tb-bar-right" style="width:${rp}%;background:${TIER_BAR_RIGHT[t]};border-left:2px solid ${TIER_BAR_RIGHT_BORDER[t]}">
+          <span class="tb-num-right">${rc}</span>
         </div>
       </div>
     </div>`;
   });
   el.innerHTML = html;
+}
+
+function toggleTierTip(btn) {
+  const tip = btn.nextElementSibling;
+  tip.style.display = tip.style.display === 'none' ? 'block' : 'none';
 }
 
 function updatePieCharts() {
@@ -501,7 +553,7 @@ function updatePieCharts() {
   const rightCounts = {t1:0,t2:0,t3:0,t4:0,t5:0,t6:0};
   if (la) heroData.filter(r => r['連盟コード'] === la).forEach(r => { leftCounts[getTierForPower(r['戦力'], allSorted)]++; });
   if (ra) heroData.filter(r => r['連盟コード'] === ra).forEach(r => { rightCounts[getTierForPower(r['戦力'], allSorted)]++; });
-  renderTierBars(leftCounts, rightCounts);
+  renderTierBars(leftCounts, rightCounts, allSorted);
 }
 
 function switchTab(tab) {

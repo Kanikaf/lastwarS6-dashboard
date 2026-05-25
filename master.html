@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理者パネル — S6 戦力データ</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',sans-serif;background:#0f1117;color:#e8eaf0;min-height:100vh}
+
+.dash{padding:1.5rem;max-width:680px;margin:0 auto}
+
+/* ヘッダー */
+.header{display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid #2a2d3a}
+.header h1{font-size:20px;font-weight:600;color:#e8eaf0;letter-spacing:0.5px}
+.badge{font-size:11px;padding:3px 10px;border-radius:20px;background:#1e3a5f;color:#5ba3f5;font-weight:600}
+.badge-admin{font-size:11px;padding:3px 10px;border-radius:20px;background:#2a1a1a;color:#f5a623;font-weight:600}
+
+/* 認証画面 */
+#auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px}
+.auth-card{background:#161822;border:1px solid #2a2d3a;border-radius:12px;padding:32px;width:100%;max-width:360px;text-align:center}
+.auth-card h2{font-size:16px;color:#888;margin-bottom:20px;letter-spacing:1px;text-transform:uppercase}
+.auth-input{width:100%;padding:10px 14px;background:#0f1117;border:1px solid #333;border-radius:8px;color:#e8eaf0;font-size:14px;outline:none;text-align:center;letter-spacing:2px}
+.auth-input:focus{border-color:#3b7dd8}
+.auth-btn{width:100%;margin-top:12px;padding:10px;background:#1e3a5f;border:none;border-radius:8px;color:#5ba3f5;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s}
+.auth-btn:hover{background:#2a4f7a}
+.auth-error{font-size:12px;color:#e05c5c;margin-top:8px;display:none}
+
+/* メイン画面 */
+#main-screen{display:none}
+
+.card{background:#161822;border:1px solid #2a2d3a;border-radius:12px;overflow:hidden;margin-bottom:14px}
+.card-header{padding:12px 16px;background:#1a1d2a;border-bottom:1px solid #2a2d3a;display:flex;align-items:center;gap:8px}
+.card-header h3{font-size:13px;font-weight:600;color:#c8cad8;letter-spacing:0.5px}
+.card-header .dot{width:8px;height:8px;border-radius:50%;background:#3b7dd8}
+.card-body{padding:16px}
+
+/* 検索エリア */
+.search-row{display:flex;gap:8px;margin-bottom:10px}
+.search-input{flex:1;padding:9px 12px;background:#0f1117;border:1px solid #333;border-radius:8px;color:#e8eaf0;font-size:13px;outline:none}
+.search-input:focus{border-color:#3b7dd8}
+.search-input::placeholder{color:#444}
+
+/* 候補リスト */
+.candidates{background:#0f1117;border:1px solid #2a2d3a;border-radius:8px;overflow:hidden;display:none;max-height:240px;overflow-y:auto}
+.candidates::-webkit-scrollbar{width:4px}
+.candidates::-webkit-scrollbar-track{background:#0f1117}
+.candidates::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+.candidate-item{padding:9px 12px;cursor:pointer;border-bottom:1px solid #1a1d2a;display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;transition:background 0.15s}
+.candidate-item:last-child{border-bottom:none}
+.candidate-item:hover{background:#1a1d2a}
+.candidate-item.selected{background:#1e3a5f}
+.c-name{font-size:13px;color:#e8eaf0;font-weight:500}
+.c-alliance{font-size:11px;color:#666;padding:2px 7px;background:#1a1d2a;border-radius:4px}
+.c-sheet{font-size:10px;color:#555}
+.no-results{padding:12px;text-align:center;color:#444;font-size:12px}
+
+/* 選択済みバッジ */
+.selected-badge{display:none;background:#1e3a5f;border:1px solid #2a4a6a;border-radius:8px;padding:10px 14px;margin-bottom:12px;display:none;align-items:center;gap:10px}
+.selected-badge .s-name{font-size:13px;font-weight:600;color:#5ba3f5}
+.selected-badge .s-info{font-size:11px;color:#666}
+.selected-badge .s-current{font-size:11px;color:#888;margin-left:auto}
+.clear-btn{background:none;border:none;color:#444;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;transition:color 0.2s}
+.clear-btn:hover{color:#e05c5c}
+
+/* 入力・送信エリア */
+.input-row{display:flex;gap:8px;align-items:center}
+.value-input{width:130px;padding:9px 12px;background:#0f1117;border:1px solid #333;border-radius:8px;color:#e8eaf0;font-size:14px;font-weight:600;outline:none;text-align:center}
+.value-input:focus{border-color:#f5a623}
+.value-label{font-size:12px;color:#666}
+.submit-btn{flex:1;padding:9px 16px;background:#1e3a2a;border:1px solid #2a5a3a;border-radius:8px;color:#5bb87a;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.submit-btn:hover:not(:disabled){background:#2a5a3a;border-color:#3b7a4a}
+.submit-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+/* トースト */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e3a2a;border:1px solid #2a5a3a;border-radius:8px;padding:10px 20px;font-size:13px;color:#5bb87a;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.error{background:#3a1e1e;border-color:#5a2a2a;color:#e05c5c}
+
+/* 履歴 */
+.history-list{display:flex;flex-direction:column;gap:6px}
+.history-item{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:8px 12px;background:#0f1117;border-radius:6px;font-size:12px}
+.h-name{color:#c8cad8;font-weight:500}
+.h-sheet{color:#555;font-size:10px}
+.h-value{color:#5bb87a;font-weight:600}
+.empty-history{text-align:center;color:#333;font-size:12px;padding:16px}
+
+/* ローディング */
+.loading-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#5ba3f5;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:0.3}50%{opacity:1}}
+
+.sheet-tag{font-size:10px;padding:2px 6px;border-radius:3px}
+.sheet-tag.main{background:#1e2a3a;color:#5ba3f5}
+.sheet-tag.hero{background:#2a1e3a;color:#a78bfa}
+
+/* サンプル数 */
+.stats-row{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px}
+.stat-chip{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;background:#0f1117;border:1px solid #2a2d3a;font-size:12px}
+.stat-zone{color:#666;font-weight:600}
+.stat-count{font-weight:700}
+.stat-count.done{color:#5bb87a}
+.stat-count.progress{color:#f5a623}
+.stat-count.empty{color:#444}
+.stat-goal{font-size:10px;color:#444}
+</style>
+</head>
+<body>
+<div class="dash">
+  <div class="header">
+    <h1>管理者パネル</h1>
+    <span class="badge">S6</span>
+    <span class="badge-admin">MASTER</span>
+  </div>
+
+  <!-- 認証画面 -->
+  <div id="auth-screen">
+    <div class="auth-card">
+      <h2>🔐 認証</h2>
+      <input type="password" class="auth-input" id="pw-input" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter')doAuth()">
+      <button class="auth-btn" onclick="doAuth()">ログイン</button>
+      <div class="auth-error" id="auth-error">パスワードが正しくありません</div>
+    </div>
+  </div>
+
+  <!-- メイン画面 -->
+  <div id="main-screen">
+
+    <!-- 戦域別サンプル数 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="dot" style="background:#a78bfa"></div>
+        <h3>戦域別サンプル数（目標：各10件）</h3>
+      </div>
+      <div class="stats-row" id="stats-row">
+        <span style="color:#444;font-size:12px">読み込み中...</span>
+      </div>
+    </div>
+
+    <!-- 1軍実測値入力 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="dot"></div>
+        <h3>1軍実測値 入力</h3>
+      </div>
+      <div class="card-body">
+
+        <!-- 検索 -->
+        <div class="search-row">
+          <input type="text" class="search-input" id="search-input" placeholder="指揮官名を入力して検索..." oninput="onSearch()" autocomplete="off">
+        </div>
+        <div class="candidates" id="candidates"></div>
+
+        <!-- 選択済み表示 -->
+        <div class="selected-badge" id="selected-badge">
+          <div>
+            <div class="s-name" id="sel-name">—</div>
+            <div style="display:flex;gap:6px;margin-top:3px">
+              <span class="s-info" id="sel-alliance">—</span>
+              <span class="sheet-tag" id="sel-sheet-tag">—</span>
+            </div>
+          </div>
+          <div class="s-current" id="sel-current">現在: —</div>
+          <button class="clear-btn" onclick="clearSelection()" title="クリア">✕</button>
+        </div>
+
+        <!-- 数値入力・送信 -->
+        <div class="input-row">
+          <input type="number" class="value-input" id="value-input" placeholder="例: 82.5" step="0.1" min="0">
+          <span class="value-label">M</span>
+          <button class="submit-btn" id="submit-btn" onclick="doWrite()" disabled>
+            <span>反映</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 反映履歴 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="dot" style="background:#5bb87a"></div>
+        <h3>反映履歴（今セッション）</h3>
+      </div>
+      <div class="card-body" style="padding:10px">
+        <div class="history-list" id="history-list">
+          <div class="empty-history">まだ反映していません</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-screen -->
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyrCsPDcpbPkoppGeqUmQM3mf8kO6gDW1_9D40q2KvkSSO9KRtgYBh5aMOZBksz3u0L9A/exec';
+const MASTER_PW = 'Kanikaf2026BxD';
+
+let pw = '';
+let selected = null;
+let searchTimer = null;
+let history = [];
+
+// URLパラメータからパスワード自動入力
+window.addEventListener('DOMContentLoaded', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const masterParam = urlParams.get('master');
+  if (masterParam === MASTER_PW) {
+    pw = MASTER_PW;
+    showMain();
+  }
+});
+
+function doAuth() {
+  const input = document.getElementById('pw-input').value.trim();
+  if (input === MASTER_PW) {
+    pw = input;
+    showMain();
+  } else {
+    document.getElementById('auth-error').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+  }
+}
+
+function showMain() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('main-screen').style.display = 'block';
+  fetchStats();
+}
+
+async function fetchStats() {
+  try {
+    const res = await fetch(`${GAS_URL}?action=stats`);
+    const data = await res.json();
+    const row = document.getElementById('stats-row');
+    if (!data || typeof data !== 'object') {
+      row.innerHTML = '<span style="color:#444;font-size:12px">取得失敗</span>';
+      return;
+    }
+    const zones = Object.keys(data).sort((a,b) => Number(a)-Number(b));
+    if (zones.length === 0) {
+      row.innerHTML = '<span style="color:#444;font-size:12px">データなし</span>';
+      return;
+    }
+    row.innerHTML = zones.map(z => {
+      const count = data[z] || 0;
+      const cls = count >= 10 ? 'done' : count > 0 ? 'progress' : 'empty';
+      const icon = count >= 10 ? '✅' : '';
+      return `<div class="stat-chip">
+        <span class="stat-zone">${z}</span>
+        <span class="stat-count ${cls}">${count}件${icon}</span>
+        <span class="stat-goal">/10</span>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('stats-row').innerHTML = '<span style="color:#e05c5c;font-size:12px">エラー</span>';
+  }
+}
+
+// 検索（デバウンス300ms）
+function onSearch() {
+  clearTimeout(searchTimer);
+  const q = document.getElementById('search-input').value.trim();
+  if (q.length < 1) {
+    hideCandidates();
+    return;
+  }
+  searchTimer = setTimeout(() => fetchSearch(q), 300);
+}
+
+async function fetchSearch(q) {
+  const cand = document.getElementById('candidates');
+  cand.style.display = 'block';
+  cand.innerHTML = '<div class="no-results"><span class="loading-dot"></span> 検索中...</div>';
+
+  try {
+    const res = await fetch(`${GAS_URL}?action=search&q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      cand.innerHTML = '<div class="no-results">候補なし</div>';
+      return;
+    }
+
+    // 重複除去（同名が両シートにある場合は両方表示）
+    cand.innerHTML = data.slice(0, 20).map((r, i) => {
+      const sheetLabel = r.sheet === 'BI_指揮官1軍推定' ? '1軍推定' : '英雄総';
+      const currentVal = r.current ? `現在: ${r.current}M` : '実測なし';
+      return `<div class="candidate-item" onclick="selectCandidate(${i})" data-idx="${i}">
+        <span class="c-name">${r.name}</span>
+        <span class="c-alliance">${r.alliance || '—'}</span>
+        <span class="c-sheet">${sheetLabel}</span>
+      </div>`;
+    }).join('');
+
+    // dataをキャッシュ
+    window._searchResults = data.slice(0, 20);
+
+  } catch(e) {
+    cand.innerHTML = '<div class="no-results">エラー: ' + e.message + '</div>';
+  }
+}
+
+function selectCandidate(idx) {
+  const r = window._searchResults[idx];
+  if (!r) return;
+
+  selected = r;
+
+  // 選択済みバッジ表示
+  const badge = document.getElementById('selected-badge');
+  badge.style.display = 'flex';
+  document.getElementById('sel-name').textContent = r.name;
+  document.getElementById('sel-alliance').textContent = r.alliance || '—';
+  const tag = document.getElementById('sel-sheet-tag');
+  if (r.sheet === 'BI_指揮官1軍推定') {
+    tag.textContent = '1軍推定';
+    tag.className = 'sheet-tag main';
+  } else {
+    tag.textContent = '英雄総';
+    tag.className = 'sheet-tag hero';
+  }
+  document.getElementById('sel-current').textContent = r.current ? `現在: ${r.current}M` : '実測なし';
+
+  // 検索欄クリア・候補非表示
+  document.getElementById('search-input').value = '';
+  hideCandidates();
+
+  // 送信ボタン有効化チェック
+  checkSubmit();
+}
+
+function clearSelection() {
+  selected = null;
+  document.getElementById('selected-badge').style.display = 'none';
+  document.getElementById('value-input').value = '';
+  checkSubmit();
+}
+
+function hideCandidates() {
+  const cand = document.getElementById('candidates');
+  cand.style.display = 'none';
+  cand.innerHTML = '';
+}
+
+// 入力値チェック
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('value-input').addEventListener('input', checkSubmit);
+});
+
+function checkSubmit() {
+  const val = document.getElementById('value-input').value;
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = !(selected && val && parseFloat(val) > 0);
+}
+
+async function doWrite() {
+  if (!selected) return;
+  const value = parseFloat(document.getElementById('value-input').value);
+  if (!value || value <= 0) return;
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-dot"></span>';
+
+  try {
+    const url = `${GAS_URL}?action=write&pw=${encodeURIComponent(pw)}&sheet=${encodeURIComponent(selected.sheet)}&row=${selected.row}&value=${value}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.status === 'ok') {
+      showToast(`✅ ${selected.name} → ${value}M を反映しました`);
+      addHistory(selected.name, selected.alliance, selected.sheet, value);
+      fetchStats();
+      clearSelection();
+      document.getElementById('value-input').value = '';
+    } else {
+      showToast('❌ エラー: ' + (data.error || '不明'), true);
+    }
+  } catch(e) {
+    showToast('❌ 通信エラー: ' + e.message, true);
+  }
+
+  btn.innerHTML = '<span>反映</span>';
+  checkSubmit();
+}
+
+function addHistory(name, alliance, sheet, value) {
+  const sheetLabel = sheet === 'BI_指揮官1軍推定' ? '1軍推定' : '英雄総';
+  history.unshift({ name, alliance, sheetLabel, value, time: new Date().toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'}) });
+
+  const list = document.getElementById('history-list');
+  list.innerHTML = history.map(h => `
+    <div class="history-item">
+      <div>
+        <span class="h-name">${h.name}</span>
+        <span style="font-size:10px;color:#555;margin-left:6px">${h.alliance}</span>
+      </div>
+      <span class="h-sheet">${h.sheetLabel} ${h.time}</span>
+      <span class="h-value">${h.value}M</span>
+    </div>
+  `).join('');
+}
+
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// 候補リスト外クリックで閉じる
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#candidates') && !e.target.closest('#search-input')) {
+    hideCandidates();
+  }
+});
+</script>
+</body>
+</html>

@@ -37,8 +37,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 .sel-row{display:flex;gap:8px}
 .sel-row select{flex:1;font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid #333;background:#0f1117;color:#e8eaf0;cursor:pointer;outline:none;width:0;min-width:0}
 .sel-row select:focus{border-color:#3b7dd8}
-
-/* 基礎データエリア */
 .basic-stats{display:grid;grid-template-columns:1fr 1fr 1fr;background:#12141f;border-bottom:1px solid #2a2d3a;padding:8px 14px;gap:4px}
 .bs-item{text-align:center}
 .bs-item .lbl{font-size:9px;color:#555;margin-bottom:3px;letter-spacing:0.5px}
@@ -46,7 +44,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 .bs-item .val.members{color:#5bb87a}
 .bs-item .val.power{color:#a78bfa}
 .bs-item .val.kill{color:#f5a623}
-
 .minmax-row{display:grid;grid-template-columns:1fr 1fr;background:#1a1d2a;padding:8px 14px;border-bottom:1px solid #2a2d3a}
 .mm-item{text-align:center}
 .mm-item .lbl{font-size:9px;color:#555;margin-bottom:2px}
@@ -74,7 +71,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 .ranker-item.hero-only .r-power{color:#888}
 .loading{text-align:center;padding:1.5rem;color:#555;font-size:12px}
 .center-card{background:#161822;border:1px solid #2a2d3a;border-radius:12px;padding:16px}
-.vs-title{font-size:11px;color:#666;text-align:center;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
 .vs-badge{text-align:center;margin-bottom:20px}
 .vs-badge span{font-size:16px;font-weight:700;color:#3b3d50;letter-spacing:4px}
 .bar-section{margin-bottom:18px}
@@ -108,45 +104,87 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 .btn-invalidate{background:transparent;border:1px solid #ff6b6b30;color:#ff6b6b;border-radius:5px;padding:3px 8px;font-size:10px;cursor:pointer}
 .btn-invalidate:hover{background:#ff6b6b20}
 .tier-popup{display:none;position:absolute;z-index:999;font-size:11px;color:#c8cad8;background:#1a1d2a;border:1px solid #3a3d50;border-radius:7px;padding:6px 12px;box-shadow:0 4px 16px #00000060;max-width:210px;pointer-events:none}
-
-.tab-nav{display:flex;gap:8px;margin-bottom:16px}
+.tab-nav{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
 .tab-btn{padding:7px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #2a2d3a;background:transparent;color:#666;transition:all 0.15s}
 .tab-btn.active{background:#1e3a5f;border-color:#3b7dd8;color:#5ba3f5}
 .tab-btn:hover:not(.active){border-color:#3b7dd8;color:#5ba3f5}
-
 .tier-wrap{max-width:800px}
 .tier-controls{margin-bottom:16px}
 .tier-filter-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .tier-filter-row select{font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid #333;background:#0f1117;color:#e8eaf0;cursor:pointer;outline:none}
 .tier-total{font-size:12px;color:#555;margin-left:auto}
-
 .tier-group{margin-bottom:20px;background:#161822;border:1px solid #2a2d3a;border-radius:10px;overflow:hidden}
 .tier-group-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#1a1d2a;border-bottom:1px solid #2a2d3a}
 .tier-label{font-size:13px;font-weight:700}
 .tier-range{font-size:11px;color:#555}
 .tier-count{font-size:11px;color:#888;margin-left:auto}
-.tier-t1 .tier-label{color:#ff4d4d}
-.tier-t2 .tier-label{color:#ff9544}
-.tier-t3 .tier-label{color:#ffd166}
-.tier-t4 .tier-label{color:#5bb87a}
-.tier-t5 .tier-label{color:#5ba3f5}
-.tier-t6 .tier-label{color:#666}
-.tier-t1{border-left:3px solid #ff4d4d}
-.tier-t2{border-left:3px solid #ff9544}
-.tier-t3{border-left:3px solid #ffd166}
-.tier-t4{border-left:3px solid #5bb87a}
-.tier-t5{border-left:3px solid #5ba3f5}
-.tier-t6{border-left:3px solid #333}
-
+.tier-t1 .tier-label{color:#ff4d4d}.tier-t2 .tier-label{color:#ff9544}.tier-t3 .tier-label{color:#ffd166}
+.tier-t4 .tier-label{color:#5bb87a}.tier-t5 .tier-label{color:#5ba3f5}.tier-t6 .tier-label{color:#666}
+.tier-t1{border-left:3px solid #ff4d4d}.tier-t2{border-left:3px solid #ff9544}.tier-t3{border-left:3px solid #ffd166}
+.tier-t4{border-left:3px solid #5bb87a}.tier-t5{border-left:3px solid #5ba3f5}.tier-t6{border-left:3px solid #333}
 .tier-rows{padding:8px 0}
 .tier-row{display:grid;grid-template-columns:48px 64px 1fr 80px;gap:8px;padding:4px 14px;font-size:12px;border-bottom:1px solid #1e2130;align-items:center}
 .tier-row:last-child{border-bottom:none}
-.tr-zone{color:#555;font-size:11px}
-.tr-alliance{color:#888;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr-zone{color:#555;font-size:11px}.tr-alliance{color:#888;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tr-name{color:#c8cad8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tr-power{text-align:right;color:#a78bfa;font-weight:600;font-size:11px}
 .tier-collapsed .tier-rows{display:none}
 .tier-toggle{cursor:pointer;font-size:10px;color:#555;margin-left:6px}
+
+/* 実測値入力タブ */
+.master-wrap{max-width:680px}
+.card{background:#161822;border:1px solid #2a2d3a;border-radius:12px;overflow:hidden;margin-bottom:14px}
+.card-header{padding:12px 16px;background:#1a1d2a;border-bottom:1px solid #2a2d3a;display:flex;align-items:center;gap:8px}
+.card-header h3{font-size:13px;font-weight:600;color:#c8cad8;letter-spacing:0.5px}
+.card-header .dot{width:8px;height:8px;border-radius:50%;background:#3b7dd8}
+.card-body{padding:16px}
+.m-search-input{width:100%;padding:9px 12px;background:#0f1117;border:1px solid #333;border-radius:8px;color:#e8eaf0;font-size:13px;outline:none;margin-bottom:10px}
+.m-search-input:focus{border-color:#3b7dd8}
+.m-search-input::placeholder{color:#444}
+.m-candidates{background:#0f1117;border:1px solid #2a2d3a;border-radius:8px;overflow:hidden;display:none;max-height:240px;overflow-y:auto;margin-bottom:10px}
+.m-candidates::-webkit-scrollbar{width:4px}
+.m-candidates::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+.m-candidate-item{padding:9px 12px;cursor:pointer;border-bottom:1px solid #1a1d2a;display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;transition:background 0.15s}
+.m-candidate-item:last-child{border-bottom:none}
+.m-candidate-item:hover{background:#1a1d2a}
+.m-c-name{font-size:13px;color:#e8eaf0;font-weight:500}
+.m-c-alliance{font-size:11px;color:#666;padding:2px 7px;background:#1a1d2a;border-radius:4px}
+.m-c-sheet{font-size:10px;color:#555}
+.m-no-results{padding:12px;text-align:center;color:#444;font-size:12px}
+.m-selected-badge{display:none;background:#1e3a5f;border:1px solid #2a4a6a;border-radius:8px;padding:10px 14px;margin-bottom:12px;align-items:center;gap:10px}
+.m-sel-name{font-size:13px;font-weight:600;color:#5ba3f5}
+.m-sel-info{font-size:11px;color:#666}
+.m-sel-current{font-size:11px;color:#888;margin-left:auto}
+.m-clear-btn{background:none;border:none;color:#444;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px}
+.m-clear-btn:hover{color:#e05c5c}
+.m-input-row{display:flex;gap:8px;align-items:center}
+.m-value-input{width:130px;padding:9px 12px;background:#0f1117;border:1px solid #333;border-radius:8px;color:#e8eaf0;font-size:14px;font-weight:600;outline:none;text-align:center}
+.m-value-input:focus{border-color:#f5a623}
+.m-value-label{font-size:12px;color:#666}
+.m-submit-btn{flex:1;padding:9px 16px;background:#1e3a2a;border:1px solid #2a5a3a;border-radius:8px;color:#5bb87a;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.m-submit-btn:hover:not(:disabled){background:#2a5a3a}
+.m-submit-btn:disabled{opacity:0.4;cursor:not-allowed}
+.m-history-item{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:8px 12px;background:#0f1117;border-radius:6px;font-size:12px;margin-bottom:6px}
+.m-h-name{color:#c8cad8;font-weight:500}
+.m-h-sheet{color:#555;font-size:10px}
+.m-h-value{color:#5bb87a;font-weight:600}
+.m-empty{text-align:center;color:#333;font-size:12px;padding:16px}
+.sheet-tag{font-size:10px;padding:2px 6px;border-radius:3px}
+.sheet-tag.main{background:#1e2a3a;color:#5ba3f5}
+.sheet-tag.hero{background:#2a1e3a;color:#a78bfa}
+.stats-row{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px}
+.stat-chip{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;background:#0f1117;border:1px solid #2a2d3a;font-size:12px}
+.stat-zone{color:#666;font-weight:600}
+.stat-count{font-weight:700}
+.stat-count.done{color:#5bb87a}
+.stat-count.progress{color:#f5a623}
+.stat-count.empty{color:#444}
+.stat-goal{font-size:10px;color:#444}
+.loading-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#5ba3f5;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:0.3}50%{opacity:1}}
+.m-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e3a2a;border:1px solid #2a5a3a;border-radius:8px;padding:10px 20px;font-size:13px;color:#5bb87a;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;z-index:9999}
+.m-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.m-toast.error{background:#3a1e1e;border-color:#5a2a2a;color:#e05c5c}
 </style>
 </head>
 <body>
@@ -173,10 +211,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
     <span class="update" id="update-time">読み込み中...</span>
   </div>
   <div class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab('compare')">⚔️ 連盟比較</button>
-    <button class="tab-btn" onclick="switchTab('tier')">📊 Tier分析</button>
-    <button class="tab-btn" id="tab-admin-btn" style="display:none" onclick="switchTab('admin')">🔑 アクセス管理</button>
+    <button class="tab-btn active" onclick="switchTab('compare',this)">⚔️ 連盟比較</button>
+    <button class="tab-btn" onclick="switchTab('tier',this)">📊 Tier分析</button>
+    <button class="tab-btn" id="tab-admin-btn" style="display:none" onclick="switchTab('admin',this)">🔑 アクセス管理</button>
+    <button class="tab-btn" id="tab-master-btn" style="display:none" onclick="switchTab('master',this)">📝 実測値入力</button>
   </div>
+
+  <!-- 連盟比較タブ -->
   <div id="tab-compare" class="tab-content">
   <div class="main-grid">
     <div class="side-card left">
@@ -187,7 +228,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
           <select id="left-alliance" onchange="onAllianceChange('left')"><option value="">連盟...</option></select>
         </div>
       </div>
-      <div class="basic-stats" id="left-basic">
+      <div class="basic-stats">
         <div class="bs-item"><div class="lbl">連盟人数</div><div class="val members" id="left-bs-members">—</div></div>
         <div class="bs-item"><div class="lbl">連盟総戦力(B)</div><div class="val power" id="left-bs-power">—</div></div>
         <div class="bs-item"><div class="lbl">撃破数(B)</div><div class="val kill" id="left-bs-kill">—</div></div>
@@ -197,53 +238,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
         <div class="mm-item"><div class="lbl">ランカーMIN推定</div><div class="num min-c" id="left-min">—</div></div>
       </div>
       <div class="ranker-list">
-        <div class="ranker-list-header">
-          <div class="r-header"><span>指揮官名</span><span>兵科</span><span>推定1軍</span></div>
-        </div>
+        <div class="ranker-list-header"><div class="r-header"><span>指揮官名</span><span>兵科</span><span>推定1軍</span></div></div>
         <div class="ranker-list-body" id="left-rankers"><div class="loading">連盟を選択してください</div></div>
       </div>
     </div>
-
     <div class="center-card">
       <div class="vs-badge"><span>VS</span></div>
       <div class="bar-section">
         <div class="bar-label">連盟戦力指数</div>
-        <div class="bar-wrap" id="bw-power">
-          <div class="bar-left blue" id="bl-power" style="width:50%"><span class="bar-val-left" id="bv-left-power">—</span></div>
-          <div class="bar-center"></div>
-          <div class="bar-right amber" id="br-power" style="width:50%"><span class="bar-val-right" id="bv-right-power">—</span></div>
-        </div>
+        <div class="bar-wrap"><div class="bar-left blue" id="bl-power" style="width:50%"><span class="bar-val-left" id="bv-left-power">—</span></div><div class="bar-center"></div><div class="bar-right amber" id="br-power" style="width:50%"><span class="bar-val-right" id="bv-right-power">—</span></div></div>
       </div>
       <div class="bar-section">
         <div class="bar-label">連盟人数</div>
-        <div class="bar-wrap">
-          <div class="bar-left blue" id="bl-members" style="width:50%"><span class="bar-val-left" id="bv-left-members">—</span></div>
-          <div class="bar-center"></div>
-          <div class="bar-right amber" id="br-members" style="width:50%"><span class="bar-val-right" id="bv-right-members">—</span></div>
-        </div>
+        <div class="bar-wrap"><div class="bar-left blue" id="bl-members" style="width:50%"><span class="bar-val-left" id="bv-left-members">—</span></div><div class="bar-center"></div><div class="bar-right amber" id="br-members" style="width:50%"><span class="bar-val-right" id="bv-right-members">—</span></div></div>
       </div>
       <div class="bar-section">
         <div class="bar-label">最強英雄ランクイン人数（各戦域内）</div>
-        <div class="bar-wrap">
-          <div class="bar-left blue" id="bl-rankers" style="width:50%"><span class="bar-val-left" id="bv-left-rankers">—</span></div>
-          <div class="bar-center"></div>
-          <div class="bar-right amber" id="br-rankers" style="width:50%"><span class="bar-val-right" id="bv-right-rankers">—</span></div>
-        </div>
+        <div class="bar-wrap"><div class="bar-left blue" id="bl-rankers" style="width:50%"><span class="bar-val-left" id="bv-left-rankers">—</span></div><div class="bar-center"></div><div class="bar-right amber" id="br-rankers" style="width:50%"><span class="bar-val-right" id="bv-right-rankers">—</span></div></div>
       </div>
       <div class="bar-section">
         <div class="bar-label">英雄総ランクイン人数（各戦域内）</div>
-        <div class="bar-wrap">
-          <div class="bar-left blue" id="bl-hero" style="width:50%"><span class="bar-val-left" id="bv-left-hero">—</span></div>
-          <div class="bar-center"></div>
-          <div class="bar-right amber" id="br-hero" style="width:50%"><span class="bar-val-right" id="bv-right-hero">—</span></div>
-        </div>
+        <div class="bar-wrap"><div class="bar-left blue" id="bl-hero" style="width:50%"><span class="bar-val-left" id="bv-left-hero">—</span></div><div class="bar-center"></div><div class="bar-right amber" id="br-hero" style="width:50%"><span class="bar-val-right" id="bv-right-hero">—</span></div></div>
       </div>
       <div class="bar-section" style="margin-bottom:0">
         <div class="bar-label">指揮官Tier分布</div>
         <div class="tier-bars" id="tier-bars"></div>
       </div>
     </div>
-
     <div class="side-card right">
       <div class="side-header">
         <div class="team-label">対戦相手</div>
@@ -252,7 +273,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
           <select id="right-alliance" onchange="onAllianceChange('right')"><option value="">連盟...</option></select>
         </div>
       </div>
-      <div class="basic-stats" id="right-basic">
+      <div class="basic-stats">
         <div class="bs-item"><div class="lbl">連盟人数</div><div class="val members" id="right-bs-members">—</div></div>
         <div class="bs-item"><div class="lbl">連盟総戦力(B)</div><div class="val power" id="right-bs-power">—</div></div>
         <div class="bs-item"><div class="lbl">撃破数(B)</div><div class="val kill" id="right-bs-kill">—</div></div>
@@ -262,58 +283,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
         <div class="mm-item"><div class="lbl">ランカーMIN推定</div><div class="num min-c" id="right-min">—</div></div>
       </div>
       <div class="ranker-list">
-        <div class="ranker-list-header">
-          <div class="r-header"><span>指揮官名</span><span>兵科</span><span>推定1軍</span></div>
-        </div>
+        <div class="ranker-list-header"><div class="r-header"><span>指揮官名</span><span>兵科</span><span>推定1軍</span></div></div>
         <div class="ranker-list-body" id="right-rankers"><div class="loading">連盟を選択してください</div></div>
       </div>
     </div>
   </div>
-</div>
-  </div><!-- /tab-compare -->
+  </div>
 
+  <!-- Tier分析タブ -->
   <div id="tab-tier" class="tab-content" style="display:none;">
     <div class="tier-wrap">
       <div class="tier-controls">
         <div class="tier-filter-row">
-          <select id="tier-zone-filter" onchange="updateTierAllianceFilter();renderTier()">
-            <option value="">全戦域</option>
-          </select>
-          <select id="tier-alliance-filter" onchange="renderTier()">
-            <option value="">全連盟</option>
-          </select>
+          <select id="tier-zone-filter" onchange="updateTierAllianceFilter();renderTier()"><option value="">全戦域</option></select>
+          <select id="tier-alliance-filter" onchange="renderTier()"><option value="">全連盟</option></select>
           <span class="tier-total" id="tier-total"></span>
         </div>
       </div>
       <div id="tier-list"><div class="loading">データを読み込み中...</div></div>
     </div>
-  </div><!-- /tab-tier -->
+  </div>
 
+  <!-- アクセス管理タブ -->
   <div id="tab-admin" class="tab-content" style="display:none;">
     <div class="admin-wrap">
       <div class="card" style="background:#1a1d27;border:1px solid #2e3350;border-radius:10px;padding:20px;margin-bottom:20px;max-width:600px">
         <div style="font-size:14px;font-weight:600;color:#c9d0e8;margin-bottom:14px">🔑 新規コード発行</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-          <div style="flex:1;min-width:120px">
-            <label style="font-size:11px;color:#7880a0;display:block;margin-bottom:4px">コード</label>
-            <input type="text" id="newCode" placeholder="BxD-2025-XXX"
-              style="width:100%;padding:8px 10px;background:#22263a;border:1px solid #2e3350;border-radius:6px;color:#e8eaf0;font-size:13px;outline:none">
-          </div>
-          <div style="width:80px">
-            <label style="font-size:11px;color:#7880a0;display:block;margin-bottom:4px">人数上限</label>
-            <input type="number" id="newMax" value="5" min="1"
-              style="width:100%;padding:8px 10px;background:#22263a;border:1px solid #2e3350;border-radius:6px;color:#e8eaf0;font-size:13px;outline:none">
-          </div>
-          <div style="width:130px">
-            <label style="font-size:11px;color:#7880a0;display:block;margin-bottom:4px">有効期限</label>
-            <input type="date" id="newExpiry"
-              style="width:100%;padding:8px 10px;background:#22263a;border:1px solid #2e3350;border-radius:6px;color:#e8eaf0;font-size:13px;outline:none">
-          </div>
+          <div style="flex:1;min-width:120px"><label style="font-size:11px;color:#7880a0;display:block;margin-bottom:4px">コード</label><input type="text" id="newCode" placeholder="BxD-2025-XXX" style="width:100%;padding:8px 10px;background:#22263a;border:1px solid #2e3350;border-radius:6px;color:#e8eaf0;font-size:13px;outline:none"></div>
+          <div style="width:80px"><label style="font-size:11px;color:#7880a0;display:block;margin-bottom:4px">人数上限</label><input type="number" id="newMax" value="5" min="1" style="width:100%;padding:8px 10px;background:#22263a;border:1px solid #2e3350;border-radius:6px;color:#e8eaf0;font-size:13px;outline:none"></div>
+          <div style="width:130px"><label style="font-size:11px;color:#7880a0;display:block;margin-bottom:4px">有効期限</label><input type="date" id="newExpiry" style="width:100%;padding:8px 10px;background:#22263a;border:1px solid #2e3350;border-radius:6px;color:#e8eaf0;font-size:13px;outline:none"></div>
         </div>
         <button onclick="issueCode()" class="btn-issue">＋ 発行</button>
         <div id="issueResult" style="margin-top:10px;font-size:13px"></div>
       </div>
-
       <div class="card" style="background:#1a1d27;border:1px solid #2e3350;border-radius:10px;padding:20px;max-width:600px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
           <div style="font-size:14px;font-weight:600;color:#c9d0e8">📋 コード一覧</div>
@@ -322,299 +325,216 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
         <div id="codeList"><div style="color:#555;font-size:13px;text-align:center;padding:20px">読み込み中...</div></div>
       </div>
     </div>
-  </div><!-- /tab-admin -->
+  </div>
 
-</div>
+  <!-- 実測値入力タブ -->
+  <div id="tab-master" class="tab-content" style="display:none;">
+    <div class="master-wrap">
+      <div class="card">
+        <div class="card-header">
+          <div class="dot" style="background:#a78bfa"></div>
+          <h3>戦域別サンプル数（目標：各10件）</h3>
+        </div>
+        <div class="stats-row" id="m-stats-row"><span style="color:#444;font-size:12px">読み込み中...</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="dot"></div>
+          <h3>1軍実測値 入力</h3>
+        </div>
+        <div class="card-body">
+          <input type="text" class="m-search-input" id="m-search-input" placeholder="指揮官名を入力して検索..." oninput="mOnSearch()" autocomplete="off">
+          <div class="m-candidates" id="m-candidates"></div>
+          <div class="m-selected-badge" id="m-selected-badge">
+            <div>
+              <div class="m-sel-name" id="m-sel-name">—</div>
+              <div style="display:flex;gap:6px;margin-top:3px">
+                <span class="m-sel-info" id="m-sel-alliance">—</span>
+                <span class="sheet-tag" id="m-sel-sheet-tag">—</span>
+              </div>
+            </div>
+            <div class="m-sel-current" id="m-sel-current">現在: —</div>
+            <button class="m-clear-btn" onclick="mClearSelection()">✕</button>
+          </div>
+          <div class="m-input-row">
+            <input type="number" class="m-value-input" id="m-value-input" placeholder="例: 82.5" step="0.1" min="0" oninput="mCheckSubmit()">
+            <span class="m-value-label">M</span>
+            <button class="m-submit-btn" id="m-submit-btn" onclick="mDoWrite()" disabled><span>反映</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="dot" style="background:#5bb87a"></div>
+          <h3>反映履歴（今セッション）</h3>
+        </div>
+        <div class="card-body" style="padding:10px">
+          <div id="m-history-list"><div class="m-empty">まだ反映していません</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /mainDash -->
+<div class="m-toast" id="m-toast"></div>
 
 <script>
 const GAS_URL='https://script.google.com/macros/s/AKfycbyrCsPDcpbPkoppGeqUmQM3mf8kO6gDW1_9D40q2KvkSSO9KRtgYBh5aMOZBksz3u0L9A/exec';
+const MASTER_PW='Kanikaf2026BxD';
 let allData={comparison:[],rankers:[],comprehensive:[],heroRankers:[],alliancePower:[],allianceKill:[],heroTotal:[]};
 let state={left:{zone:'',alliance:''},right:{zone:'',alliance:''}};
+let isMaster=false;
+let mSelected=null,mSearchTimer=null,mHistory=[];
 
-// ---- 招待コード認証 ----
-const GAS_URL_AUTH = GAS_URL; // 同じGAS URL
-
-async function checkInviteCode() {
-  const code = document.getElementById('inviteInput').value.trim();
-  if (!code) return;
-  const errEl = document.getElementById('authError');
-  errEl.style.display = 'none';
-
-  // ローカルに保存済みコードがあればそれを使う
-  try {
-    const res = await fetch(GAS_URL + '?action=auth&code=' + encodeURIComponent(code) + '&uid=' + getUID());
-    const json = await res.json();
-    if (json.status === 'ok') {
-      localStorage.setItem('lw_invite_code', code);
-      localStorage.setItem('lw_uid', getUID());
-      showDashboard();
-    } else {
-      errEl.textContent = json.message || '無効なコードです';
-      errEl.style.display = 'block';
-    }
-  } catch(e) {
-    errEl.textContent = '接続エラー: ' + e.message;
-    errEl.style.display = 'block';
-  }
+// ---- 認証 ----
+async function checkInviteCode(){
+  const code=document.getElementById('inviteInput').value.trim();
+  if(!code)return;
+  const errEl=document.getElementById('authError');
+  errEl.style.display='none';
+  try{
+    const res=await fetch(GAS_URL+'?action=auth&code='+encodeURIComponent(code)+'&uid='+getUID());
+    const json=await res.json();
+    if(json.status==='ok'){localStorage.setItem('lw_invite_code',code);showDashboard();}
+    else{errEl.textContent=json.message||'無効なコードです';errEl.style.display='block';}
+  }catch(e){errEl.textContent='接続エラー: '+e.message;errEl.style.display='block';}
 }
-
-function getUID() {
-  let uid = localStorage.getItem('lw_uid');
-  if (!uid) {
-    uid = 'u-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
-    localStorage.setItem('lw_uid', uid);
-  }
+function getUID(){
+  let uid=localStorage.getItem('lw_uid');
+  if(!uid){uid='u-'+Math.random().toString(36).substr(2,9)+'-'+Date.now();localStorage.setItem('lw_uid',uid);}
   return uid;
 }
-
-function showDashboard() {
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('mainDash').style.display = 'block';
-  if (isMaster) {
-    document.getElementById('tab-admin-btn').style.display = 'inline-flex';
+function showDashboard(){
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('mainDash').style.display='block';
+  if(isMaster){
+    document.getElementById('tab-admin-btn').style.display='inline-flex';
+    document.getElementById('tab-master-btn').style.display='inline-flex';
   }
   init();
 }
-
-let isMaster = false;
+async function initAuth(){
+  const urlParams=new URLSearchParams(window.location.search);
+  if(urlParams.get('master')===MASTER_PW){isMaster=true;showDashboard();return;}
+  const savedCode=localStorage.getItem('lw_invite_code');
+  if(savedCode){
+    try{
+      const res=await fetch(GAS_URL+'?action=auth&code='+encodeURIComponent(savedCode)+'&uid='+getUID());
+      const json=await res.json();
+      if(json.status==='ok'){showDashboard();return;}
+    }catch(e){}
+  }
+  document.getElementById('authScreen').style.display='flex';
+}
 
 // ---- アクセス管理 ----
-async function issueCode() {
-  const code = document.getElementById('newCode').value.trim();
-  const max  = document.getElementById('newMax').value;
-  const exp  = document.getElementById('newExpiry').value;
-  const res  = document.getElementById('issueResult');
-  if (!code) { res.innerHTML = '<span style="color:#ff6b6b">コードを入力してください</span>'; return; }
-  res.innerHTML = '<span style="color:#7880a0">発行中...</span>';
-  try {
-    const r = await fetch(GAS_URL + '?action=issueCode&code=' + encodeURIComponent(code) + '&max=' + max + '&expiry=' + exp);
-    const j = await r.json();
-    if (j.status === 'ok') {
-      res.innerHTML = '<span style="color:#38d9a9">✅ 発行しました！</span>';
-      document.getElementById('newCode').value = '';
-      loadCodes();
-    } else {
-      res.innerHTML = '<span style="color:#ff6b6b">❌ ' + j.message + '</span>';
-    }
-  } catch(e) {
-    res.innerHTML = '<span style="color:#ff6b6b">❌ エラー: ' + e.message + '</span>';
-  }
+async function issueCode(){
+  const code=document.getElementById('newCode').value.trim();
+  const max=document.getElementById('newMax').value;
+  const exp=document.getElementById('newExpiry').value;
+  const res=document.getElementById('issueResult');
+  if(!code){res.innerHTML='<span style="color:#ff6b6b">コードを入力してください</span>';return;}
+  res.innerHTML='<span style="color:#7880a0">発行中...</span>';
+  try{
+    const r=await fetch(GAS_URL+'?action=issueCode&code='+encodeURIComponent(code)+'&max='+max+'&expiry='+exp);
+    const j=await r.json();
+    if(j.status==='ok'){res.innerHTML='<span style="color:#38d9a9">✅ 発行しました！</span>';document.getElementById('newCode').value='';loadCodes();}
+    else res.innerHTML='<span style="color:#ff6b6b">❌ '+j.message+'</span>';
+  }catch(e){res.innerHTML='<span style="color:#ff6b6b">❌ エラー: '+e.message+'</span>';}
 }
-
-async function loadCodes() {
-  const el = document.getElementById('codeList');
-  try {
-    const r = await fetch(GAS_URL + '?action=getCodes');
-    const j = await r.json();
-    if (!j.codes || !j.codes.length) {
-      el.innerHTML = '<div style="color:#555;font-size:13px;text-align:center;padding:20px">コードなし</div>';
-      return;
-    }
-    let html = '<div class="code-row code-row-header"><span>コード</span><span>上限</span><span>使用</span><span>期限</span><span></span></div>';
-    j.codes.forEach((c, i) => {
-      const used = c.used || 0;
-      const max  = c.max || 0;
-      const usedColor = used >= max ? '#ff6b6b' : '#38d9a9';
-      html += `<div class="code-row">
-        <span class="code-val">${c.code}</span>
-        <span style="color:#7880a0;text-align:center">${max}</span>
-        <span style="color:${usedColor};text-align:center">${used}</span>
-        <span style="color:#7880a0;font-size:11px">${c.expiry || '無期限'}</span>
-        <button class="btn-invalidate" onclick="invalidateCode(${i+1})">無効化</button>
-      </div>`;
+async function loadCodes(){
+  const el=document.getElementById('codeList');
+  try{
+    const r=await fetch(GAS_URL+'?action=getCodes');
+    const j=await r.json();
+    if(!j.codes||!j.codes.length){el.innerHTML='<div style="color:#555;font-size:13px;text-align:center;padding:20px">コードなし</div>';return;}
+    let html='<div class="code-row code-row-header"><span>コード</span><span>上限</span><span>使用</span><span>期限</span><span></span></div>';
+    j.codes.forEach((c,i)=>{
+      const used=c.used||0,max=c.max||0;
+      html+=`<div class="code-row"><span class="code-val">${c.code}</span><span style="color:#7880a0;text-align:center">${max}</span><span style="color:${used>=max?'#ff6b6b':'#38d9a9'};text-align:center">${used}</span><span style="color:#7880a0;font-size:11px">${c.expiry||'無期限'}</span><button class="btn-invalidate" onclick="invalidateCode(${i+1})">無効化</button></div>`;
     });
-    el.innerHTML = html;
-  } catch(e) {
-    el.innerHTML = '<span style="color:#ff6b6b;font-size:13px">エラー: ' + e.message + '</span>';
-  }
+    el.innerHTML=html;
+  }catch(e){el.innerHTML='<span style="color:#ff6b6b;font-size:13px">エラー: '+e.message+'</span>';}
+}
+async function invalidateCode(rowIndex){
+  if(!confirm('このコードを無効化しますか？'))return;
+  try{const r=await fetch(GAS_URL+'?action=invalidateCode&row='+rowIndex);const j=await r.json();if(j.status==='ok')loadCodes();}
+  catch(e){alert('エラー: '+e.message);}
 }
 
-async function invalidateCode(rowIndex) {
-  if (!confirm('このコードを無効化しますか？')) return;
-  try {
-    const r = await fetch(GAS_URL + '?action=invalidateCode&row=' + rowIndex);
-    const j = await r.json();
-    if (j.status === 'ok') loadCodes();
-  } catch(e) { alert('エラー: ' + e.message); }
-}
-
-async function initAuth() {
-  // マスターアクセス確認
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('master') === 'Kanikaf2026BxD') {
-    isMaster = true;
-    showDashboard();
-    return;
-  }
-
-  const savedCode = localStorage.getItem('lw_invite_code');
-  const uid = getUID();
-  if (savedCode) {
-    try {
-      const res = await fetch(GAS_URL + '?action=auth&code=' + encodeURIComponent(savedCode) + '&uid=' + uid);
-      const json = await res.json();
-      if (json.status === 'ok') {
-        showDashboard();
-        return;
-      }
-    } catch(e) {}
-  }
-  document.getElementById('authScreen').style.display = 'flex';
-}
-
-async function fetchSheet(name){
-  const res=await fetch(GAS_URL+'?sheet='+encodeURIComponent(name));
-  return await res.json();
-}
-
+// ---- データ取得 ----
+async function fetchSheet(name){const res=await fetch(GAS_URL+'?sheet='+encodeURIComponent(name));return await res.json();}
 async function init(){
   try{
-    const[comp,rank,comp2,heroRank]=await Promise.all([
-      fetchSheet('BI_連盟比較'),
-      fetchSheet('BI_指揮官1軍推定'),
-      fetchSheet('BI_連盟総合力'),
-      fetchSheet('BI_指揮官1軍推定_英雄総')
-    ]);
-    allData.comparison=comp;
-    allData.rankers=rank;
-    allData.comprehensive=comp2;
-    allData.heroRankers=heroRank;
-    // 統合_連盟総戦力・統合_連盟撃破数・統合_英雄総戦力はシートがない場合もある
-    try{ allData.alliancePower=await fetchSheet('統合_連盟総戦力'); }catch(e){ allData.alliancePower=[]; }
-    try{ allData.allianceKill=await fetchSheet('統合_連盟撃破数'); }catch(e){ allData.allianceKill=[]; }
-    try{ allData.heroTotal=await fetchSheet('統合_英雄総戦力'); }catch(e){ allData.heroTotal=[]; }
-    if(!Array.isArray(allData.alliancePower)) allData.alliancePower=[];
-    if(!Array.isArray(allData.allianceKill)) allData.allianceKill=[];
-    if(!Array.isArray(allData.heroTotal)) allData.heroTotal=[];
+    const[comp,rank,comp2,heroRank]=await Promise.all([fetchSheet('BI_連盟比較'),fetchSheet('BI_指揮官1軍推定'),fetchSheet('BI_連盟総合力'),fetchSheet('BI_指揮官1軍推定_英雄総')]);
+    allData.comparison=comp;allData.rankers=rank;allData.comprehensive=comp2;allData.heroRankers=heroRank;
+    try{allData.alliancePower=await fetchSheet('統合_連盟総戦力');}catch(e){allData.alliancePower=[];}
+    try{allData.allianceKill=await fetchSheet('統合_連盟撃破数');}catch(e){allData.allianceKill=[];}
+    try{allData.heroTotal=await fetchSheet('統合_英雄総戦力');}catch(e){allData.heroTotal=[];}
+    if(!Array.isArray(allData.alliancePower))allData.alliancePower=[];
+    if(!Array.isArray(allData.allianceKill))allData.allianceKill=[];
+    if(!Array.isArray(allData.heroTotal))allData.heroTotal=[];
     initTierFilters();
     const zones=[...new Set(comp.map(r=>r['戦域']).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
-    ['left-zone','right-zone'].forEach(id=>{
-      const sel=document.getElementById(id);
-      zones.forEach(z=>{const o=document.createElement('option');o.value=z;o.textContent=z+'戦域';sel.appendChild(o);});
-    });
+    ['left-zone','right-zone'].forEach(id=>{const sel=document.getElementById(id);zones.forEach(z=>{const o=document.createElement('option');o.value=z;o.textContent=z+'戦域';sel.appendChild(o);});});
     document.getElementById('update-time').textContent='更新: '+new Date().toLocaleTimeString('ja-JP');
-
-    const savedLZ=localStorage.getItem('lw_left_zone');
-    const savedLA=localStorage.getItem('lw_left_alliance');
-    const savedRZ=localStorage.getItem('lw_right_zone');
-    const savedRA=localStorage.getItem('lw_right_alliance');
-
-    if(savedLZ){
-      document.getElementById('left-zone').value=savedLZ;
-      onZoneChange('left');
-      if(savedLA){document.getElementById('left-alliance').value=savedLA;onAllianceChange('left');}
-    }
-    if(savedRZ){
-      document.getElementById('right-zone').value=savedRZ;
-      onZoneChange('right');
-      if(savedRA){document.getElementById('right-alliance').value=savedRA;onAllianceChange('right');}
-    }
-  }catch(e){
-    document.getElementById('update-time').textContent='エラー: '+e.message;
-  }
+    const savedLZ=localStorage.getItem('lw_left_zone'),savedLA=localStorage.getItem('lw_left_alliance');
+    const savedRZ=localStorage.getItem('lw_right_zone'),savedRA=localStorage.getItem('lw_right_alliance');
+    if(savedLZ){document.getElementById('left-zone').value=savedLZ;onZoneChange('left');if(savedLA){document.getElementById('left-alliance').value=savedLA;onAllianceChange('left');}}
+    if(savedRZ){document.getElementById('right-zone').value=savedRZ;onZoneChange('right');if(savedRA){document.getElementById('right-alliance').value=savedRA;onAllianceChange('right');}}
+  }catch(e){document.getElementById('update-time').textContent='エラー: '+e.message;}
 }
 
 function isValidAllianceName(name){
-  if(!name)return false;
-  if(name.length>20)return false;
+  if(!name)return false;if(name.length>20)return false;
   if(/^\d{4}-\d{2}-\d{2}/.test(name))return false;
   if(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/.test(name))return false;
-  if(name==='-')return true;
-  return true;
+  if(name==='-')return true;return true;
 }
-
-function saveState(){
-  localStorage.setItem('lw_left_zone',state.left.zone);
-  localStorage.setItem('lw_left_alliance',state.left.alliance);
-  localStorage.setItem('lw_right_zone',state.right.zone);
-  localStorage.setItem('lw_right_alliance',state.right.alliance);
-}
-
+function saveState(){localStorage.setItem('lw_left_zone',state.left.zone);localStorage.setItem('lw_left_alliance',state.left.alliance);localStorage.setItem('lw_right_zone',state.right.zone);localStorage.setItem('lw_right_alliance',state.right.alliance);}
 function onZoneChange(side){
-  const zone=document.getElementById(side+'-zone').value;
-  state[side].zone=zone;
-  const sel=document.getElementById(side+'-alliance');
-  sel.innerHTML='<option value="">連盟...</option>';
+  const zone=document.getElementById(side+'-zone').value;state[side].zone=zone;
+  const sel=document.getElementById(side+'-alliance');sel.innerHTML='<option value="">連盟...</option>';
   if(!zone)return;
   const names=[...new Set(allData.comparison.filter(r=>String(r['戦域'])===String(zone)&&r['連盟名']&&isValidAllianceName(r['連盟名'])).map(r=>r['連盟名']))];
-  names.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;sel.appendChild(o);});
-  saveState();
+  names.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;sel.appendChild(o);});saveState();
 }
-
-function classStyle(c){
-  if(!c)return'';
-  if(c.includes('戦車'))return'tank';
-  if(c.includes('航空'))return'air';
-  if(c.includes('ロケラン'))return'rocket';
-  return'';
-}
-
-function formatB(val){
-  if(val==null||val===''||val===0)return'—';
-  const n=Number(val);
-  if(isNaN(n)||n===0)return'—';
-  if(n>=1e9)return(n/1e9).toFixed(2)+'B';
-  if(n>=1e6)return(n/1e6).toFixed(0)+'M';
-  return n.toLocaleString();
-}
-
+function classStyle(c){if(!c)return'';if(c.includes('戦車'))return'tank';if(c.includes('航空'))return'air';if(c.includes('ロケラン'))return'rocket';return'';}
+function formatB(val){if(val==null||val===''||val===0)return'—';const n=Number(val);if(isNaN(n)||n===0)return'—';if(n>=1e9)return(n/1e9).toFixed(2)+'B';if(n>=1e6)return(n/1e6).toFixed(0)+'M';return n.toLocaleString();}
 function onAllianceChange(side){
-  const alliance=document.getElementById(side+'-alliance').value;
-  state[side].alliance=alliance;
-  saveState();
-  if(!alliance)return;
+  const alliance=document.getElementById(side+'-alliance').value;state[side].alliance=alliance;saveState();if(!alliance)return;
   const zone=state[side].zone;
   const c2=allData.comprehensive.find(r=>r['連盟タグ']===alliance);
-  const maxVal=c2&&c2['ランカーMAX推定(M)']!=null?c2['ランカーMAX推定(M)']+'M':'—';
+  document.getElementById(side+'-max').textContent=c2&&c2['ランカーMAX推定(M)']!=null?c2['ランカーMAX推定(M)']+'M':'—';
   const minRaw=c2?c2['ランカーMIN推定(M)']:null;
-  const minVal=minRaw!=null&&minRaw!==''&&Number(minRaw)!==0?Number(minRaw)+'M':'—';
-  document.getElementById(side+'-max').textContent=maxVal;
-  document.getElementById(side+'-min').textContent=minVal;
-
-  // 基礎データ更新
-  const members=c2?c2['連盟人数']:null;
-  // 連盟総戦力（統合_連盟総戦力から該当戦域・連盟タグで検索）
+  document.getElementById(side+'-min').textContent=minRaw!=null&&minRaw!==''&&Number(minRaw)!==0?Number(minRaw)+'M':'—';
   const powRow=allData.alliancePower.find(r=>String(r['戦域番号'])===String(zone)&&r['連盟コード']===alliance);
-  // 撃破数（統合_連盟撃破数から検索）
   const killRow=allData.allianceKill.find(r=>String(r['戦域番号'])===String(zone)&&r['連盟コード']===alliance);
-
-  document.getElementById(side+'-bs-members').textContent=members||'—';
+  document.getElementById(side+'-bs-members').textContent=c2?c2['連盟人数']:'—';
   document.getElementById(side+'-bs-power').textContent=powRow?formatB(powRow['戦力']):'—';
   document.getElementById(side+'-bs-kill').textContent=killRow?formatB(killRow['撃破数']):'—';
-
   const rankers=allData.rankers.filter(r=>r['連盟名']===alliance).slice(0,50);
   const heroRankers=allData.heroRankers.filter(r=>r['連盟タグ']===alliance||r['連盟名']===alliance).slice(0,50);
   const cont=document.getElementById(side+'-rankers');
-  const FIXED_ROWS=20;
   let items=[];
   rankers.forEach(r=>items.push({name:r['指揮官名'],class:r['兵科'],power:r['1軍推定戦力(M)'],type:'ranker'}));
   heroRankers.forEach(r=>items.push({name:r['指揮官名'],class:r['兵科']||'—',power:r['1軍推定戦力(M)※参考値'],type:'hero'}));
   let html=items.map(r=>`<div class="ranker-item${r.type==='hero'?' hero-only':''}"><span class="r-name">${r.name||'—'}</span><span class="r-class ${classStyle(r.class)}">${r.class||'—'}</span><span class="r-power">${r.power||'—'}</span></div>`).join('');
-  for(let i=items.length;i<FIXED_ROWS;i++){
-    html+=`<div class="ranker-item"><span class="r-name" style="color:#2a2d3a">—</span><span class="r-class"></span><span class="r-power"></span></div>`;
-  }
+  for(let i=items.length;i<20;i++)html+=`<div class="ranker-item"><span class="r-name" style="color:#2a2d3a">—</span><span class="r-class"></span><span class="r-power"></span></div>`;
   cont.innerHTML=html||'<div class="loading">ランカーデータなし</div>';
-  updateBars();
-  updatePieCharts();
+  updateBars();updatePieCharts();
 }
-
-function setBar(leftId,rightId,lvId,rvId,lv,rv){
+function setBar(lid,rid,lvid,rvid,lv,rv){
   const total=(Number(lv)||0)+(Number(rv)||0);
   const lp=total>0?Math.round((Number(lv)||0)/total*100):50;
   const rp=total>0?Math.round((Number(rv)||0)/total*100):50;
-  document.getElementById(leftId).style.width=lp+'%';
-  document.getElementById(rightId).style.width=rp+'%';
-  document.getElementById(lvId).textContent=lv!=null&&lv!==''?lv:'—';
-  document.getElementById(rvId).textContent=rv!=null&&rv!==''?rv:'—';
+  document.getElementById(lid).style.width=lp+'%';document.getElementById(rid).style.width=rp+'%';
+  document.getElementById(lvid).textContent=lv!=null&&lv!==''?lv:'—';document.getElementById(rvid).textContent=rv!=null&&rv!==''?rv:'—';
 }
-
 function updateBars(){
-  const lz=state.left.zone,la=state.left.alliance;
-  const rz=state.right.zone,ra=state.right.alliance;
-  const lc2=allData.comprehensive.find(r=>r['連盟タグ']===la);
-  const rc2=allData.comprehensive.find(r=>r['連盟タグ']===ra);
-  const lc1=allData.comparison.find(r=>String(r['戦域'])===String(lz)&&r['連盟名']===la);
-  const rc1=allData.comparison.find(r=>String(r['戦域'])===String(rz)&&r['連盟名']===ra);
+  const lz=state.left.zone,la=state.left.alliance,rz=state.right.zone,ra=state.right.alliance;
+  const lc2=allData.comprehensive.find(r=>r['連盟タグ']===la),rc2=allData.comprehensive.find(r=>r['連盟タグ']===ra);
+  const lc1=allData.comparison.find(r=>String(r['戦域'])===String(lz)&&r['連盟名']===la),rc1=allData.comparison.find(r=>String(r['戦域'])===String(rz)&&r['連盟名']===ra);
   setBar('bl-power','br-power','bv-left-power','bv-right-power',lc2?lc2['連盟戦力指数']:null,rc2?rc2['連盟戦力指数']:null);
   setBar('bl-members','br-members','bv-left-members','bv-right-members',lc2?lc2['連盟人数']:null,rc2?rc2['連盟人数']:null);
   setBar('bl-rankers','br-rankers','bv-left-rankers','bv-right-rankers',lc1?lc1['最強英雄RankIn']:null,rc1?rc1['最強英雄RankIn']:null);
@@ -623,289 +543,171 @@ function updateBars(){
 
 document.querySelectorAll('.ranker-list-body').forEach(el=>{
   let startY=0;
-  el.addEventListener('touchstart',function(e){
-    startY=e.touches[0].clientY;
-    if(this.scrollTop===0)this.scrollTop=1;
-    else if(this.scrollTop+this.offsetHeight>=this.scrollHeight)this.scrollTop=this.scrollHeight-this.offsetHeight-1;
-  },{passive:true});
-  el.addEventListener('touchmove',function(e){
-    const delta=startY-e.touches[0].clientY;
-    const atTop=this.scrollTop<=0;
-    const atBottom=this.scrollTop+this.offsetHeight>=this.scrollHeight;
-    if((atTop&&delta<0)||(atBottom&&delta>0)){e.preventDefault();}
-    else{e.stopPropagation();}
-  },{passive:false});
+  el.addEventListener('touchstart',function(e){startY=e.touches[0].clientY;if(this.scrollTop===0)this.scrollTop=1;else if(this.scrollTop+this.offsetHeight>=this.scrollHeight)this.scrollTop=this.scrollHeight-this.offsetHeight-1;},{passive:true});
+  el.addEventListener('touchmove',function(e){const delta=startY-e.touches[0].clientY;const atTop=this.scrollTop<=0;const atBottom=this.scrollTop+this.offsetHeight>=this.scrollHeight;if((atTop&&delta<0)||(atBottom&&delta>0))e.preventDefault();else e.stopPropagation();},{passive:false});
 });
 
-const TIER_COLORS = {
-  t1: '#ff4d4d', t2: '#ff9544', t3: '#ffd166',
-  t4: '#5bb87a', t5: '#5ba3f5', t6: '#555'
-};
-const TIER_LABELS = {
-  t1:'Tier1', t2:'Tier2', t3:'Tier3', t4:'Tier4', t5:'Tier5', t6:'Tier6'
-};
+const TIER_COLORS={t1:'#ff4d4d',t2:'#ff9544',t3:'#ffd166',t4:'#5bb87a',t5:'#5ba3f5',t6:'#555'};
+const TIER_LABELS={t1:'Tier1',t2:'Tier2',t3:'Tier3',t4:'Tier4',t5:'Tier5',t6:'Tier6'};
+const TIER_BAR_LEFT={t1:'#4a1a1a',t2:'#4a2a10',t3:'#3a3010',t4:'#1a3020',t5:'#1a2a40',t6:'#252525'};
+const TIER_BAR_RIGHT={t1:'#3a1010',t2:'#3a2008',t3:'#2a2808',t4:'#102518',t5:'#102035',t6:'#1e1e1e'};
+const TIER_BAR_LEFT_BORDER={t1:'#8a3030',t2:'#8a5020',t3:'#7a6018',t4:'#2a6040',t5:'#2a5080',t6:'#444'};
+const TIER_BAR_RIGHT_BORDER={t1:'#6a2020',t2:'#6a3a10',t3:'#5a4a10',t4:'#1a4a28',t5:'#1a3860',t6:'#333'};
+let tierThresholdText={t1:'上位2%',t2:'上位2〜10%',t3:'上位10〜30%',t4:'上位30〜60%',t5:'上位60〜80%',t6:'上位80%以下'};
 
-function getTierForPower(power, allSorted) {
-  const n = allSorted.length;
-  const rank = allSorted.findIndex(r => Number(r['戦力']) <= Number(power));
-  const pct = rank / n;
-  if (pct < 0.02) return 't1';
-  if (pct < 0.10) return 't2';
-  if (pct < 0.30) return 't3';
-  if (pct < 0.60) return 't4';
-  if (pct < 0.80) return 't5';
-  return 't6';
+function getTierForPower(power,allSorted){
+  const rank=allSorted.findIndex(r=>Number(r['戦力'])<=Number(power));const pct=rank/allSorted.length;
+  if(pct<0.02)return't1';if(pct<0.10)return't2';if(pct<0.30)return't3';if(pct<0.60)return't4';if(pct<0.80)return't5';return't6';
 }
-
-// Tier別のミュートカラー（左：暗め青みがかった色、右：暗めアンバーがかった色）
-const TIER_BAR_LEFT = {
-  t1: '#4a1a1a', t2: '#4a2a10', t3: '#3a3010',
-  t4: '#1a3020', t5: '#1a2a40', t6: '#252525'
-};
-const TIER_BAR_RIGHT = {
-  t1: '#3a1010', t2: '#3a2008', t3: '#2a2808',
-  t4: '#102518', t5: '#102035', t6: '#1e1e1e'
-};
-const TIER_BAR_LEFT_BORDER = {
-  t1: '#8a3030', t2: '#8a5020', t3: '#7a6018',
-  t4: '#2a6040', t5: '#2a5080', t6: '#444'
-};
-const TIER_BAR_RIGHT_BORDER = {
-  t1: '#6a2020', t2: '#6a3a10', t3: '#5a4a10',
-  t4: '#1a4a28', t5: '#1a3860', t6: '#333'
-};
-
-// Tier境界値テキスト（updatePieChartsで動的に計算して更新）
-let tierThresholdText = {
-  t1:'上位2%', t2:'上位2〜10%', t3:'上位10〜30%',
-  t4:'上位30〜60%', t5:'上位60〜80%', t6:'上位80%以下'
-};
-
-function renderTierBars(leftCounts, rightCounts, allSorted) {
-  const el = document.getElementById('tier-bars');
-  if (!el) return;
-  // 境界値を計算
-  const n = allSorted ? allSorted.length : 0;
-  const pcts = [0.02, 0.10, 0.30, 0.60, 0.80];
-  const thresholds = pcts.map(p => {
-    const idx = Math.floor(n * p) - 1;
-    return idx >= 0 && idx < n ? (Number(allSorted[idx]['戦力']) / 1e6).toFixed(0) + 'M' : '—';
+function renderTierBars(leftCounts,rightCounts,allSorted){
+  const el=document.getElementById('tier-bars');if(!el)return;
+  const n=allSorted?allSorted.length:0;
+  const thresholds=[0.02,0.10,0.30,0.60,0.80].map(p=>{const idx=Math.floor(n*p)-1;return idx>=0&&idx<n?(Number(allSorted[idx]['戦力'])/1e6).toFixed(0)+'M':'—';});
+  tierThresholdText={t1:`上位2%（${thresholds[1]}以上）`,t2:`上位2〜10%（${thresholds[2]}〜${thresholds[1]}）`,t3:`上位10〜30%（${thresholds[3]}〜${thresholds[2]}）`,t4:`上位30〜60%（${thresholds[4]}〜${thresholds[3]}）`,t5:`上位60〜80%（〜${thresholds[4]}）`,t6:`上位80%以下`};
+  const tiers=['t1','t2','t3','t4','t5','t6'];
+  let html='';
+  tiers.forEach(t=>{
+    const lc=leftCounts[t]||0,rc=rightCounts[t]||0,tot=lc+rc;
+    const lp=tot>0?Math.round(lc/tot*100):50,rp=tot>0?Math.round(rc/tot*100):50;
+    const lpAdj=(lc===0&&rc===0)?50:Math.max(lp,8),rpAdj=(lc===0&&rc===0)?50:Math.max(rp,8);
+    const tip=tierThresholdText[t].replace(/'/g,'&apos;');
+    html+=`<div class="tb-row"><div class="tb-label-row"><span class="tb-label" style="color:${TIER_COLORS[t]}">${TIER_LABELS[t]}</span><span class="tier-info-btn" onclick="showTierTip(event,'${tip}')">ℹ</span></div><div class="tb-bar-wrap"><div class="tb-bar-left" style="width:${lpAdj}%;background:${TIER_BAR_LEFT[t]};border-right:2px solid ${TIER_BAR_LEFT_BORDER[t]}"><span class="tb-num-left">${lc}</span></div><div class="tb-bar-right" style="width:${rpAdj}%;background:${TIER_BAR_RIGHT[t]};border-left:2px solid ${TIER_BAR_RIGHT_BORDER[t]}"><span class="tb-num-right">${rc}</span></div></div></div>`;
   });
-  tierThresholdText = {
-    t1: `上位2%（${thresholds[1]}以上）`,
-    t2: `上位2〜10%（${thresholds[2]}〜${thresholds[1]}）`,
-    t3: `上位10〜30%（${thresholds[3]}〜${thresholds[2]}）`,
-    t4: `上位30〜60%（${thresholds[4]}〜${thresholds[3]}）`,
-    t5: `上位60〜80%（〜${thresholds[4]}）`,
-    t6: `上位80%以下`
-  };
+  el.innerHTML=html;
+}
+function showTierTip(e,text){
+  e.stopPropagation();let popup=document.getElementById('tier-popup');
+  if(!popup){popup=document.createElement('div');popup.id='tier-popup';popup.className='tier-popup';document.body.appendChild(popup);}
+  popup.textContent=text;const rect=e.target.getBoundingClientRect();
+  popup.style.display='block';popup.style.top=(rect.bottom+window.scrollY+6)+'px';popup.style.left=Math.min(rect.left+window.scrollX-10,window.innerWidth-220)+'px';
+}
+document.addEventListener('click',()=>{const p=document.getElementById('tier-popup');if(p)p.style.display='none';});
+document.addEventListener('scroll',()=>{const p=document.getElementById('tier-popup');if(p)p.style.display='none';},true);
+function updatePieCharts(){
+  const la=state.left.alliance,ra=state.right.alliance;const heroData=allData.heroTotal||[];if(!heroData.length)return;
+  const allSorted=heroData.filter(r=>r['戦力']>0).sort((a,b)=>Number(b['戦力'])-Number(a['戦力']));
+  const leftCounts={t1:0,t2:0,t3:0,t4:0,t5:0,t6:0},rightCounts={t1:0,t2:0,t3:0,t4:0,t5:0,t6:0};
+  if(la)heroData.filter(r=>r['連盟コード']===la).forEach(r=>{leftCounts[getTierForPower(r['戦力'],allSorted)]++;});
+  if(ra)heroData.filter(r=>r['連盟コード']===ra).forEach(r=>{rightCounts[getTierForPower(r['戦力'],allSorted)]++;});
+  renderTierBars(leftCounts,rightCounts,allSorted);
+}
 
-  const tiers = ['t1','t2','t3','t4','t5','t6'];
-  let html = '';
-  tiers.forEach(t => {
-    const lc = leftCounts[t] || 0;
-    const rc = rightCounts[t] || 0;
-    const tot = lc + rc;
-    const lp = tot > 0 ? Math.round((lc / tot) * 100) : 50;
-    const rp = tot > 0 ? Math.round((rc / tot) * 100) : 50;
-    const color = TIER_COLORS[t];
-    const tip = tierThresholdText[t].replace(/'/g, '&apos;');
-    // 両方0の場合は50:50、片方0でも最低8%幅確保
-    const lpAdj = (lc === 0 && rc === 0) ? 50 : Math.max(lp, 8);
-    const rpAdj = (lc === 0 && rc === 0) ? 50 : Math.max(rp, 8);
-    html += `<div class="tb-row">
-      <div class="tb-label-row">
-        <span class="tb-label" style="color:${color}">${TIER_LABELS[t]}</span>
-        <span class="tier-info-btn" onclick="showTierTip(event, '${tip}')">ℹ</span>
-      </div>
-      <div class="tb-bar-wrap">
-        <div class="tb-bar-left" style="width:${lpAdj}%;background:${TIER_BAR_LEFT[t]};border-right:2px solid ${TIER_BAR_LEFT_BORDER[t]}">
-          <span class="tb-num-left">${lc}</span>
-        </div>
-        <div class="tb-bar-right" style="width:${rpAdj}%;background:${TIER_BAR_RIGHT[t]};border-left:2px solid ${TIER_BAR_RIGHT_BORDER[t]}">
-          <span class="tb-num-right">${rc}</span>
-        </div>
-      </div>
-    </div>`;
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.style.display='none');
+  document.getElementById('tab-'+tab).style.display='block';
+  if(btn)btn.classList.add('active');
+  if(tab==='tier')renderTier();
+  if(tab==='admin')loadCodes();
+  if(tab==='master')mFetchStats();
+}
+
+function formatM(val){if(!val||isNaN(val))return'—';return(Number(val)/1e6).toFixed(1)+'M';}
+function renderTier(){
+  const zoneFilter=document.getElementById('tier-zone-filter').value;
+  const alliFilter=document.getElementById('tier-alliance-filter').value;
+  let data=allData.heroTotal||[];
+  if(!data.length){document.getElementById('tier-list').innerHTML='<div class="loading">統合_英雄総戦力のデータがありません</div>';return;}
+  let filtered=data;
+  if(zoneFilter)filtered=filtered.filter(r=>String(r['戦域番号'])===String(zoneFilter));
+  if(alliFilter)filtered=filtered.filter(r=>r['連盟コード']===alliFilter);
+  filtered=filtered.filter(r=>r['戦力']>0).sort((a,b)=>Number(b['戦力'])-Number(a['戦力']));
+  document.getElementById('tier-total').textContent='合計 '+filtered.length+'人';
+  const allSorted=data.filter(r=>r['戦力']>0).sort((a,b)=>Number(b['戦力'])-Number(a['戦力']));
+  const n=allSorted.length;
+  const thresholds=[{key:'t1',label:'Tier 1',pct:0.02},{key:'t2',label:'Tier 2',pct:0.10},{key:'t3',label:'Tier 3',pct:0.30},{key:'t4',label:'Tier 4',pct:0.60},{key:'t5',label:'Tier 5',pct:0.80},{key:'t6',label:'Tier 6',pct:1.00}];
+  function getTier(power){const rank=allSorted.findIndex(r=>Number(r['戦力'])<=Number(power));const pct=rank/n;if(pct<0.02)return't1';if(pct<0.10)return't2';if(pct<0.30)return't3';if(pct<0.60)return't4';if(pct<0.80)return't5';return't6';}
+  const groups={t1:[],t2:[],t3:[],t4:[],t5:[],t6:[]};
+  filtered.forEach(r=>{groups[getTier(r['戦力'])].push(r);});
+  let html='';
+  thresholds.forEach((t,i)=>{
+    const rows=groups[t.key];const prevPct=i>0?thresholds[i-1].pct*100:0;
+    const pctLabel=i===0?'上位2%':`上位${prevPct.toFixed(0)}%〜${(t.pct*100).toFixed(0)}%`;
+    html+=`<div class="tier-group tier-${t.key}" id="tg-${t.key}"><div class="tier-group-header" onclick="toggleTier('${t.key}')"><span class="tier-label">${t.label}</span><span class="tier-range">${pctLabel}</span><span class="tier-count">${rows.length}人</span><span class="tier-toggle" id="tt-${t.key}">▼</span></div><div class="tier-rows">`;
+    rows.forEach(r=>{html+=`<div class="tier-row"><span class="tr-zone">#${r['戦域番号']}</span><span class="tr-alliance">${r['連盟コード']||'—'}</span><span class="tr-name">${r['指揮官名']||'—'}</span><span class="tr-power">${formatM(r['戦力'])}</span></div>`;});
+    html+=`</div></div>`;
   });
-  el.innerHTML = html;
+  document.getElementById('tier-list').innerHTML=html||'<div class="loading">データなし</div>';
 }
-
-function showTierTip(e, text) {
-  e.stopPropagation();
-  let popup = document.getElementById('tier-popup');
-  if (!popup) {
-    popup = document.createElement('div');
-    popup.id = 'tier-popup';
-    popup.className = 'tier-popup';
-    document.body.appendChild(popup);
-  }
-  popup.textContent = text;
-  const rect = e.target.getBoundingClientRect();
-  popup.style.display = 'block';
-  popup.style.top = (rect.bottom + window.scrollY + 6) + 'px';
-  popup.style.left = Math.min(rect.left + window.scrollX - 10, window.innerWidth - 220) + 'px';
-}
-document.addEventListener('click', () => {
-  const p = document.getElementById('tier-popup');
-  if (p) p.style.display = 'none';
-});
-document.addEventListener('scroll', () => {
-  const p = document.getElementById('tier-popup');
-  if (p) p.style.display = 'none';
-}, true);
-
-function updatePieCharts() {
-  const la = state.left.alliance;
-  const ra = state.right.alliance;
-  const heroData = allData.heroTotal || [];
-  if (!heroData.length) return;
-  const allSorted = heroData.filter(r => r['戦力'] > 0).sort((a,b) => Number(b['戦力']) - Number(a['戦力']));
-  const leftCounts  = {t1:0,t2:0,t3:0,t4:0,t5:0,t6:0};
-  const rightCounts = {t1:0,t2:0,t3:0,t4:0,t5:0,t6:0};
-  if (la) heroData.filter(r => r['連盟コード'] === la).forEach(r => { leftCounts[getTierForPower(r['戦力'], allSorted)]++; });
-  if (ra) heroData.filter(r => r['連盟コード'] === ra).forEach(r => { rightCounts[getTierForPower(r['戦力'], allSorted)]++; });
-  renderTierBars(leftCounts, rightCounts, allSorted);
-}
-
-function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-  document.getElementById('tab-' + tab).style.display = 'block';
-  event.target.classList.add('active');
-  if (tab === 'tier') renderTier();
-  if (tab === 'admin') loadCodes();
-}
-
-function formatM(val) {
-  if (!val || isNaN(val)) return '—';
-  return (Number(val) / 1e6).toFixed(1) + 'M';
-}
-
-function renderTier() {
-  const zoneFilter = document.getElementById('tier-zone-filter').value;
-  const alliFilter = document.getElementById('tier-alliance-filter').value;
-
-  let data = allData.heroTotal || [];
-  if (!data.length) {
-    document.getElementById('tier-list').innerHTML = '<div class="loading">統合_英雄総戦力のデータがありません</div>';
-    return;
-  }
-
-  // フィルタ
-  let filtered = data;
-  if (zoneFilter) filtered = filtered.filter(r => String(r['戦域番号']) === String(zoneFilter));
-  if (alliFilter) filtered = filtered.filter(r => r['連盟コード'] === alliFilter);
-
-  // 戦力でソート
-  filtered = filtered.filter(r => r['戦力'] > 0)
-    .sort((a, b) => Number(b['戦力']) - Number(a['戦力']));
-
-  const total = filtered.length;
-  document.getElementById('tier-total').textContent = '合計 ' + total + '人';
-
-  // Tier境界（全データ基準）
-  const allSorted = data.filter(r => r['戦力'] > 0).sort((a, b) => Number(b['戦力']) - Number(a['戦力']));
-  const n = allSorted.length;
-  const thresholds = [
-    { key: 't1', label: 'Tier 1', pct: 0.02 },
-    { key: 't2', label: 'Tier 2', pct: 0.10 },
-    { key: 't3', label: 'Tier 3', pct: 0.30 },
-    { key: 't4', label: 'Tier 4', pct: 0.60 },
-    { key: 't5', label: 'Tier 5', pct: 0.80 },
-    { key: 't6', label: 'Tier 6', pct: 1.00 },
-  ];
-
-  // 各Tierの最低戦力を計算
-  const tierBounds = thresholds.map((t, i) => {
-    const idx = Math.floor(n * t.pct) - 1;
-    const minPower = idx >= 0 && idx < n ? Number(allSorted[idx]['戦力']) : 0;
-    const prevIdx = i > 0 ? Math.floor(n * thresholds[i-1].pct) - 1 : -1;
-    const maxPower = prevIdx >= 0 ? Number(allSorted[prevIdx]['戦力']) : Number(allSorted[0]['戦力']);
-    return { ...t, minPower, maxPower };
-  });
-
-  // 各指揮官のTierを判定
-  function getTier(power) {
-    const p = Number(power);
-    const rank = allSorted.findIndex(r => Number(r['戦力']) <= p);
-    const pct = rank / n;
-    if (pct < 0.02) return 't1';
-    if (pct < 0.10) return 't2';
-    if (pct < 0.30) return 't3';
-    if (pct < 0.60) return 't4';
-    if (pct < 0.80) return 't5';
-    return 't6';
-  }
-
-  // グループ化
-  const groups = { t1:[], t2:[], t3:[], t4:[], t5:[], t6:[] };
-  filtered.forEach(r => {
-    const tier = getTier(r['戦力']);
-    groups[tier].push(r);
-  });
-
-  let html = '';
-  thresholds.forEach((t, i) => {
-    const rows = groups[t.key];
-    const bound = tierBounds[i];
-    const prevPct = i > 0 ? thresholds[i-1].pct * 100 : 0;
-    const pctLabel = i === 0 ? '上位2%' : `上位${prevPct.toFixed(0)}%〜${(t.pct*100).toFixed(0)}%`;
-    const powerLabel = bound.minPower > 0 ? formatM(bound.minPower) + '以上' : '';
-
-    html += `<div class="tier-group tier-${t.key}" id="tg-${t.key}">
-      <div class="tier-group-header" onclick="toggleTier('${t.key}')">
-        <span class="tier-label">${t.label}</span>
-        <span class="tier-range">${pctLabel}${powerLabel ? ' · ' + powerLabel : ''}</span>
-        <span class="tier-count">${rows.length}人</span>
-        <span class="tier-toggle" id="tt-${t.key}">▼</span>
-      </div>
-      <div class="tier-rows">`;
-
-    rows.forEach(r => {
-      html += `<div class="tier-row">
-        <span class="tr-zone">#${r['戦域番号']}</span>
-        <span class="tr-alliance">${r['連盟コード']||'—'}</span>
-        <span class="tr-name">${r['指揮官名']||'—'}</span>
-        <span class="tr-power">${formatM(r['戦力'])}</span>
-      </div>`;
-    });
-
-    html += `</div></div>`;
-  });
-
-  document.getElementById('tier-list').innerHTML = html || '<div class="loading">データなし</div>';
-}
-
-function toggleTier(key) {
-  const group = document.getElementById('tg-' + key);
-  const toggle = document.getElementById('tt-' + key);
-  group.classList.toggle('tier-collapsed');
-  toggle.textContent = group.classList.contains('tier-collapsed') ? '▶' : '▼';
-}
-
-function initTierFilters() {
-  const data = allData.heroTotal || [];
-  const zones = [...new Set(data.map(r => r['戦域番号']).filter(Boolean))].sort((a,b) => Number(a)-Number(b));
-  const zSel = document.getElementById('tier-zone-filter');
-  zones.forEach(z => { const o = document.createElement('option'); o.value=z; o.textContent=z+'戦域'; zSel.appendChild(o); });
+function toggleTier(key){const group=document.getElementById('tg-'+key);const toggle=document.getElementById('tt-'+key);group.classList.toggle('tier-collapsed');toggle.textContent=group.classList.contains('tier-collapsed')?'▶':'▼';}
+function initTierFilters(){
+  const data=allData.heroTotal||[];const zones=[...new Set(data.map(r=>r['戦域番号']).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
+  const zSel=document.getElementById('tier-zone-filter');zones.forEach(z=>{const o=document.createElement('option');o.value=z;o.textContent=z+'戦域';zSel.appendChild(o);});
   updateTierAllianceFilter();
 }
-
-function updateTierAllianceFilter() {
-  const data = allData.heroTotal || [];
-  const zoneFilter = document.getElementById('tier-zone-filter').value;
-  const aSel = document.getElementById('tier-alliance-filter');
-  const current = aSel.value;
-  aSel.innerHTML = '<option value="">全連盟</option>';
-  const filtered = zoneFilter ? data.filter(r => String(r['戦域番号']) === String(zoneFilter)) : data;
-  const alliances = [...new Set(filtered.map(r => r['連盟コード']).filter(Boolean))].sort();
-  alliances.forEach(a => { const o = document.createElement('option'); o.value=a; o.textContent=a; aSel.appendChild(o); });
-  if (alliances.includes(current)) aSel.value = current;
+function updateTierAllianceFilter(){
+  const data=allData.heroTotal||[];const zoneFilter=document.getElementById('tier-zone-filter').value;
+  const aSel=document.getElementById('tier-alliance-filter');const current=aSel.value;aSel.innerHTML='<option value="">全連盟</option>';
+  const filtered=zoneFilter?data.filter(r=>String(r['戦域番号'])===String(zoneFilter)):data;
+  const alliances=[...new Set(filtered.map(r=>r['連盟コード']).filter(Boolean))].sort();
+  alliances.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;aSel.appendChild(o);});
+  if(alliances.includes(current))aSel.value=current;
 }
+
+// ---- 実測値入力 ----
+async function mFetchStats(){
+  try{
+    const res=await fetch(`${GAS_URL}?action=stats`);const data=await res.json();
+    const row=document.getElementById('m-stats-row');
+    if(!data||typeof data!=='object'){row.innerHTML='<span style="color:#444;font-size:12px">取得失敗</span>';return;}
+    const zones=Object.keys(data).sort((a,b)=>Number(a)-Number(b));
+    if(!zones.length){row.innerHTML='<span style="color:#444;font-size:12px">データなし</span>';return;}
+    row.innerHTML=zones.map(z=>{const count=data[z]||0;const cls=count>=10?'done':count>0?'progress':'empty';const icon=count>=10?'✅':'';return`<div class="stat-chip"><span class="stat-zone">${z}</span><span class="stat-count ${cls}">${count}件${icon}</span><span class="stat-goal">/10</span></div>`;}).join('');
+  }catch(e){document.getElementById('m-stats-row').innerHTML='<span style="color:#e05c5c;font-size:12px">エラー</span>';}
+}
+function mOnSearch(){
+  clearTimeout(mSearchTimer);const q=document.getElementById('m-search-input').value.trim();
+  if(q.length<1){mHideCandidates();return;}
+  mSearchTimer=setTimeout(()=>mFetchSearch(q),300);
+}
+async function mFetchSearch(q){
+  const cand=document.getElementById('m-candidates');cand.style.display='block';
+  cand.innerHTML='<div class="m-no-results"><span class="loading-dot"></span> 検索中...</div>';
+  try{
+    const res=await fetch(`${GAS_URL}?action=search&q=${encodeURIComponent(q)}`);const data=await res.json();
+    if(!Array.isArray(data)||data.length===0){cand.innerHTML='<div class="m-no-results">候補なし</div>';return;}
+    cand.innerHTML=data.slice(0,20).map((r,i)=>`<div class="m-candidate-item" onclick="mSelectCandidate(${i})"><span class="m-c-name">${r.name}</span><span class="m-c-alliance">${r.alliance||'—'}</span><span class="m-c-sheet">${r.sheet==='BI_指揮官1軍推定'?'1軍推定':'英雄総'}</span></div>`).join('');
+    window._mSearchResults=data.slice(0,20);
+  }catch(e){cand.innerHTML='<div class="m-no-results">エラー: '+e.message+'</div>';}
+}
+function mSelectCandidate(idx){
+  const r=window._mSearchResults[idx];if(!r)return;mSelected=r;
+  const badge=document.getElementById('m-selected-badge');badge.style.display='flex';
+  document.getElementById('m-sel-name').textContent=r.name;document.getElementById('m-sel-alliance').textContent=r.alliance||'—';
+  const tag=document.getElementById('m-sel-sheet-tag');
+  if(r.sheet==='BI_指揮官1軍推定'){tag.textContent='1軍推定';tag.className='sheet-tag main';}
+  else{tag.textContent='英雄総';tag.className='sheet-tag hero';}
+  document.getElementById('m-sel-current').textContent=r.current?`現在: ${r.current}M`:'実測なし';
+  document.getElementById('m-search-input').value='';mHideCandidates();mCheckSubmit();
+}
+function mClearSelection(){mSelected=null;document.getElementById('m-selected-badge').style.display='none';document.getElementById('m-value-input').value='';mCheckSubmit();}
+function mHideCandidates(){const c=document.getElementById('m-candidates');c.style.display='none';c.innerHTML='';}
+function mCheckSubmit(){const val=document.getElementById('m-value-input').value;document.getElementById('m-submit-btn').disabled=!(mSelected&&val&&parseFloat(val)>0);}
+async function mDoWrite(){
+  if(!mSelected)return;const value=parseFloat(document.getElementById('m-value-input').value);if(!value||value<=0)return;
+  const btn=document.getElementById('m-submit-btn');btn.disabled=true;btn.innerHTML='<span class="loading-dot"></span>';
+  try{
+    const url=`${GAS_URL}?action=write&pw=${encodeURIComponent(MASTER_PW)}&sheet=${encodeURIComponent(mSelected.sheet)}&row=${mSelected.row}&value=${value}`;
+    const res=await fetch(url);const data=await res.json();
+    if(data.status==='ok'){
+      mShowToast(`✅ ${mSelected.name} → ${value}M を反映しました`);
+      mAddHistory(mSelected.name,mSelected.alliance,mSelected.sheet,value);
+      mFetchStats();mClearSelection();document.getElementById('m-value-input').value='';
+    }else mShowToast('❌ エラー: '+(data.error||'不明'),true);
+  }catch(e){mShowToast('❌ 通信エラー: '+e.message,true);}
+  btn.innerHTML='<span>反映</span>';mCheckSubmit();
+}
+function mAddHistory(name,alliance,sheet,value){
+  const sheetLabel=sheet==='BI_指揮官1軍推定'?'1軍推定':'英雄総';
+  mHistory.unshift({name,alliance,sheetLabel,value,time:new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'})});
+  document.getElementById('m-history-list').innerHTML=mHistory.map(h=>`<div class="m-history-item"><div><span class="m-h-name">${h.name}</span><span style="font-size:10px;color:#555;margin-left:6px">${h.alliance}</span></div><span class="m-h-sheet">${h.sheetLabel} ${h.time}</span><span class="m-h-value">${h.value}M</span></div>`).join('');
+}
+function mShowToast(msg,isError=false){
+  const t=document.getElementById('m-toast');t.textContent=msg;t.className='m-toast'+(isError?' error':'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);
+}
+document.addEventListener('click',e=>{if(!e.target.closest('#m-candidates')&&!e.target.closest('#m-search-input'))mHideCandidates();});
 
 initAuth();
 </script>
-</div>
 </body>
 </html>

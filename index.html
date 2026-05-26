@@ -213,6 +213,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
   <div class="tab-nav">
     <button class="tab-btn active" onclick="switchTab('compare',this)">⚔️ 連盟比較</button>
     <button class="tab-btn" onclick="switchTab('tier',this)">📊 Tier分析</button>
+    <button class="tab-btn" onclick="switchTab('search',this)">🔍 指揮官検索</button>
     <button class="tab-btn" id="tab-admin-btn" style="display:none" onclick="switchTab('admin',this)">🔑 アクセス管理</button>
     <button class="tab-btn" id="tab-master-btn" style="display:none" onclick="switchTab('master',this)">📝 実測値入力</button>
   </div>
@@ -370,6 +371,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
         </div>
         <div class="card-body" style="padding:10px">
           <div id="m-history-list"><div class="m-empty">まだ反映していません</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 指揮官検索タブ -->
+  <div id="tab-search" class="tab-content" style="display:none;">
+    <div style="max-width:600px">
+      <div class="card">
+        <div class="card-header">
+          <div class="dot" style="background:#ffd166"></div>
+          <h3>指揮官検索</h3>
+        </div>
+        <div class="card-body">
+          <input type="text" class="m-search-input" id="cs-input" placeholder="指揮官名を入力..." oninput="csOnSearch()" autocomplete="off">
+          <div class="m-candidates" id="cs-candidates"></div>
+        </div>
+      </div>
+      <div class="card" id="cs-result-card" style="display:none;">
+        <div class="card-header" style="border-left:3px solid #ffd166">
+          <div class="dot" style="background:#ffd166"></div>
+          <h3 id="cs-result-name" style="font-size:15px;color:#ffd166">—</h3>
+        </div>
+        <div style="padding:16px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="cs-result-body"></div>
         </div>
       </div>
     </div>
@@ -706,6 +733,70 @@ function mShowToast(msg,isError=false){
   const t=document.getElementById('m-toast');t.textContent=msg;t.className='m-toast'+(isError?' error':'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);
 }
 document.addEventListener('click',e=>{if(!e.target.closest('#m-candidates')&&!e.target.closest('#m-search-input'))mHideCandidates();});
+
+
+// ---- 指揮官検索 ----
+let csSearchTimer=null;
+function csOnSearch(){
+  clearTimeout(csSearchTimer);
+  const q=document.getElementById('cs-input').value.trim();
+  if(q.length<1){mHideCsCandidates();return;}
+  csSearchTimer=setTimeout(()=>csFetchSearch(q),300);
+}
+async function csFetchSearch(q){
+  const cand=document.getElementById('cs-candidates');cand.style.display='block';
+  cand.innerHTML='<div class="m-no-results"><span class="loading-dot"></span> 検索中...</div>';
+  try{
+    const res=await fetch(`${GAS_URL}?action=search&q=${encodeURIComponent(q)}`);
+    const data=await res.json();
+    // BI_指揮官1軍推定のみフィルタ
+    const filtered=(Array.isArray(data)?data:[]).filter(r=>r.sheet==='BI_指揮官1軍推定');
+    if(!filtered.length){cand.innerHTML='<div class="m-no-results">候補なし</div>';return;}
+    cand.innerHTML=filtered.slice(0,20).map((r,i)=>`<div class="m-candidate-item" onclick="csSelectCandidate(${i})"><span class="m-c-name">${r.name}</span><span class="m-c-alliance">${r.alliance||'—'}</span></div>`).join('');
+    window._csSearchResults=filtered.slice(0,20);
+  }catch(e){cand.innerHTML='<div class="m-no-results">エラー: '+e.message+'</div>';}
+}
+function csSelectCandidate(idx){
+  const r=window._csSearchResults[idx];if(!r)return;
+  document.getElementById('cs-input').value='';mHideCsCandidates();
+  // BI_指揮官1軍推定から詳細データを取得
+  const ranker=allData.rankers.find(d=>d['指揮官名']===r.name&&(r.alliance===''||d['連盟名']===r.alliance));
+  if(!ranker){document.getElementById('cs-result-card').style.display='none';return;}
+  // 英雄総戦力を統合_英雄総戦力から検索
+  const heroRow=allData.heroTotal.find(d=>d['指揮官名']===r.name);
+  const heroTotalPower=heroRow?formatM(heroRow['戦力']):'—';
+  document.getElementById('cs-result-name').textContent=r.name;
+  document.getElementById('cs-result-card').style.display='block';
+  const classColor={'戦車':'#5ba3f5','航空':'#5bb87a','ロケラン':'#f5a623'}[ranker['兵科']]||'#888';
+  document.getElementById('cs-result-body').innerHTML=`
+    <div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #2a2d3a">
+      <div style="font-size:10px;color:#555;margin-bottom:4px">戦域</div>
+      <div style="font-size:16px;font-weight:700;color:#c8cad8">#${ranker['戦域']||'—'}</div>
+    </div>
+    <div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #2a2d3a">
+      <div style="font-size:10px;color:#555;margin-bottom:4px">連盟</div>
+      <div style="font-size:16px;font-weight:700;color:#c8cad8">${ranker['連盟名']||'—'}</div>
+    </div>
+    <div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #2a2d3a">
+      <div style="font-size:10px;color:#555;margin-bottom:4px">最強英雄戦力</div>
+      <div style="font-size:16px;font-weight:700;color:#a78bfa">${ranker['最強英雄戦力(M)']?ranker['最強英雄戦力(M)']+'M':'—'}</div>
+    </div>
+    <div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #2a2d3a">
+      <div style="font-size:10px;color:#555;margin-bottom:4px">英雄総戦力</div>
+      <div style="font-size:16px;font-weight:700;color:#a78bfa">${heroTotalPower}</div>
+    </div>
+    <div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #2a2d3a;grid-column:1/-1">
+      <div style="font-size:10px;color:#555;margin-bottom:4px">推定1軍戦力</div>
+      <div style="font-size:22px;font-weight:700;color:#ffd166">${ranker['1軍推定戦力(M)']?ranker['1軍推定戦力(M)']+'M':'—'}</div>
+    </div>
+    <div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #2a2d3a;grid-column:1/-1">
+      <div style="font-size:10px;color:#555;margin-bottom:4px">兵科</div>
+      <div style="font-size:16px;font-weight:700;color:${classColor}">${ranker['兵科']||'—'}</div>
+    </div>
+  `;
+}
+function mHideCsCandidates(){const c=document.getElementById('cs-candidates');if(c){c.style.display='none';c.innerHTML='';}}
+document.addEventListener('click',e=>{if(!e.target.closest('#cs-candidates')&&!e.target.closest('#cs-input'))mHideCsCandidates();});
 
 initAuth();
 </script>

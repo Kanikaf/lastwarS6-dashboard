@@ -97,7 +97,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 .admin-wrap{max-width:600px}
 .btn-issue{background:#38d9a9;color:#0f1117;border:none;border-radius:7px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer}
 .btn-issue:hover{background:#4fe6b8}
-.code-row{display:grid;grid-template-columns:1fr 60px 60px 90px 60px 60px 60px;gap:8px;padding:8px 0;border-bottom:1px solid #1e2235;font-size:12px;align-items:center}
+.code-row{display:grid;grid-template-columns:1fr 50px 50px 85px;gap:6px;padding:8px 0;border-bottom:1px solid #1e2235;font-size:12px;align-items:center}
+.code-row-btns{display:flex;gap:4px;flex-wrap:wrap;padding:4px 0 8px;border-bottom:1px solid #1e2235}
+@media(min-width:600px){.code-row{grid-template-columns:1fr 60px 60px 90px 60px 60px 60px}.code-row-btns{display:contents}}
 .code-row:last-child{border-bottom:none}
 .code-row-header{font-size:10px;color:#7880a0;font-weight:600;border-bottom:1px solid #2e3350;padding-bottom:6px;margin-bottom:4px}
 .code-val{color:#e8eaf0;font-weight:600;font-family:monospace}
@@ -479,10 +481,10 @@ async function loadCodes(){
     const r=await fetch(GAS_URL+'?action=getCodes');
     const j=await r.json();
     if(!j.codes||!j.codes.length){el.innerHTML='<div style="color:#555;font-size:13px;text-align:center;padding:20px">コードなし</div>';return;}
-    let html='<div class="code-row code-row-header"><span>コード</span><span>上限</span><span>使用</span><span>期限</span><span></span><span></span><span></span></div>';
+    let html='<div class="code-row code-row-header"><span>コード</span><span>上限</span><span>使用</span><span>期限</span></div>';
     j.codes.forEach((c,i)=>{
       const used=c.used||0,max=c.max||0;
-      html+=`<div class="code-row"><span class="code-val">${c.code}</span><span style="color:#7880a0;text-align:center">${max}</span><span style="color:${used>=max?'#ff6b6b':'#38d9a9'};text-align:center">${used}</span><span style="color:#7880a0;font-size:11px">${c.expiry||'無期限'}</span><button class="btn-invalidate" onclick="invalidateCode(${i+1})">無効化</button><button class="btn-delete" onclick="deleteCode(${i+1},'${c.code}')">削除</button><button class="btn-reset" onclick="resetCode(${i+1},'${c.code}')">リセット</button></div>`;
+      html+=`<div class="code-row"><span class="code-val">${c.code}</span><span style="color:#7880a0;text-align:center">${max}</span><span style="color:${used>=max?'#ff6b6b':'#38d9a9'};text-align:center">${used}</span><span style="color:#7880a0;font-size:11px">${c.expiry||'無期限'}</span></div><div class="code-row-btns"><button class="btn-invalidate" onclick="invalidateCode(${i+1})">無効化</button><button class="btn-delete" onclick="deleteCode(${i+1},'${c.code}')">削除</button><button class="btn-reset" onclick="resetCode(${i+1},'${c.code}')">リセット</button></div>`;
     });
     el.innerHTML=html;
   }catch(e){el.innerHTML='<span style="color:#ff6b6b;font-size:13px">エラー: '+e.message+'</span>';}

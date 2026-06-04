@@ -597,13 +597,24 @@ function formatB(val){if(val==null||val===''||val===0)return'—';const n=Number
 function calcGrowthBonus(heroClass, recordedAt){
   const startStr = recordedAt && recordedAt.match(/^\d{4}\/\d{2}\/\d{2}$/)
     ? recordedAt : '2025/05/25';
+ // ゲーム時間：日本時間AM11時が日付切り替え
+  const toGameTime = (date) => {
+    const d = new Date(date);
+    d.setHours(d.getHours() - 11); // AM11時を0時扱いにシフト
+    return d;
+  };
   const start = new Date(startStr);
   const today = new Date();
   let thursdays = 0;
   const d = new Date(start);
   d.setDate(d.getDate() + 7);
   while(d <= today){
-    if(d.getDay() === 4) thursdays++;
+    if(d.getDay() === 4){
+      // 木曜AM11時を過ぎているか確認
+      const threshold = new Date(d);
+      threshold.setHours(11, 0, 0, 0);
+      if(today >= threshold) thursdays++;
+    }
     d.setDate(d.getDate() + 7);
   }
   const weekly = thursdays * (growthConfig.weeklyGrowth || 0.5);
@@ -636,7 +647,17 @@ const base=parseFloat(r['1軍推定戦力(M)'])||0;
   const adjusted=base>0?Math.round((base+bonus)*10)/10:null;
   items.push({name:r['指揮官名'],class:r['兵科'],power:adjusted?adjusted+'M':r['1軍推定戦力(M)'],type:'ranker'});
 });
-  heroRankers.forEach(r=>items.push({name:r['指揮官名'],class:r['兵科']||'—',power:r['1軍推定戦力(M)※参考値'],type:'hero'}));
+  heroRankers.forEach(r=>{
+  const base=parseFloat(r['1軍推定戦力(M)※参考値'])||0;
+  const bonus=base>0?calcGrowthBonus(r['兵科'],r['実測記録日']):0;
+  const adjusted=base>0?Math.round((base+bonus)*10)/10:null;
+  items.push({
+    name:r['指揮官名'],
+    class:r['兵科']||'—',
+    power:adjusted?adjusted+'M':r['1軍推定戦力(M)※参考値'],
+    type:'hero'
+  });
+});
   let html=items.map(r=>`<div class="ranker-item${r.type==='hero'?' hero-only':''}"><span class="r-name">${r.name||'—'}</span><span class="r-class ${classStyle(r.class)}">${r.class||'—'}</span><span class="r-power">${r.power||'—'}</span></div>`).join('');
   for(let i=items.length;i<20;i++)html+=`<div class="ranker-item"><span class="r-name" style="color:#2a2d3a">—</span><span class="r-class"></span><span class="r-power"></span></div>`;
   cont.innerHTML=html||'<div class="loading">ランカーデータなし</div>';

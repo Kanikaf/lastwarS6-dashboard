@@ -597,32 +597,35 @@ function formatB(val){if(val==null||val===''||val===0)return'—';const n=Number
 function calcGrowthBonus(heroClass, recordedAt){
   const startStr = recordedAt && recordedAt.match(/^\d{4}\/\d{2}\/\d{2}$/)
     ? recordedAt : '2025/05/25';
- // ゲーム時間：日本時間AM11時が日付切り替え
-  const toGameTime = (date) => {
-    const d = new Date(date);
-    d.setHours(d.getHours() - 11); // AM11時を0時扱いにシフト
-    return d;
-  };
+
+  // ゲーム時間基準：AM11時が日付切り替え
+  const gameNow = new Date();
+  gameNow.setHours(gameNow.getHours() - 11); // AM11時を0時扱い
+  const gameTodayStr = `${gameNow.getFullYear()}/${String(gameNow.getMonth()+1).padStart(2,'0')}/${String(gameNow.getDate()).padStart(2,'0')}`;
+
+  // 起点もゲーム時間に変換
   const start = new Date(startStr);
-  const today = new Date();
   let thursdays = 0;
   const d = new Date(start);
   d.setDate(d.getDate() + 7);
-  while(d <= today){
+  while(d <= new Date()){
     if(d.getDay() === 4){
-      // 木曜AM11時を過ぎているか確認
       const threshold = new Date(d);
       threshold.setHours(11, 0, 0, 0);
-      if(today >= threshold) thursdays++;
+      if(new Date() >= threshold) thursdays++;
     }
     d.setDate(d.getDate() + 7);
   }
+
   const weekly = thursdays * (growthConfig.weeklyGrowth || 0.5);
+
+  // オフセットもゲーム日付で比較
   const offsetData = heroTypeOffsets._raw || [];
   let offset = 0;
   offsetData.forEach(o => {
-    if(o.date > startStr && o.type === heroClass) offset += o.val;
+    if(o.date > startStr && o.date <= gameTodayStr && o.type === heroClass) offset += o.val;
   });
+
   return Math.round((weekly + offset) * 10) / 10;
 }
 function onAllianceChange(side){

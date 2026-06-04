@@ -557,7 +557,11 @@ async function init(){
     if(!Array.isArray(allData.heroTotal))allData.heroTotal=[];
     initTierFilters();
     const zones=[...new Set(comp.map(r=>r['戦域']).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
-    ['left-zone','right-zone'].forEach(id=>{const sel=document.getElementById(id);zones.forEach(z=>{const o=document.createElement('option');o.value=z;o.textContent=z+'戦域';sel.appendChild(o);});});
+    ['left-zone','right-zone'].forEach(id=>{
+  const sel=document.getElementById(id);
+  sel.innerHTML='<option value="">戦域...</option>';
+  zones.forEach(z=>{const o=document.createElement('option');o.value=z;o.textContent=z+'戦域';sel.appendChild(o);});
+});
     document.getElementById('update-time').textContent='更新: '+new Date().toLocaleTimeString('ja-JP');
     try {
       const [cfg, offsets] = await Promise.all([

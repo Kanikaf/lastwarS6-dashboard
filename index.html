@@ -610,7 +610,7 @@ function calcGrowthBonus(heroClass, recordedAt){
   const offsetData = heroTypeOffsets._raw || [];
   let offset = 0;
   offsetData.forEach(o => {
-    if(o.date >= startStr && o.type === heroClass) offset += o.val;
+    if(o.date > startStr && o.type === heroClass) offset += o.val;
   });
   return Math.round((weekly + offset) * 10) / 10;
 }

@@ -840,6 +840,16 @@ async function addOffset(){
   }catch(e){mShowToast('❌ 通信エラー: '+e.message,true);}
 }
 
+async function deleteOffset(rowNum){
+  if(!confirm('このオフセットを削除しますか？'))return;
+  try{
+    const r=await fetch(`${GAS_URL}?action=deleteOffset&pw=${encodeURIComponent(MASTER_PW)}&row=${rowNum}`);
+    const j=await r.json();
+    if(j.status==='ok'){mShowToast('✅ 削除しました');await loadOffsets();}
+    else mShowToast('❌ エラー: '+(j.message||'不明'),true);
+  }catch(e){mShowToast('❌ 通信エラー: '+e.message,true);}
+}
+  
 async function loadOffsets(){
   try{
     const [offsets,raw]=await Promise.all([
@@ -860,7 +870,15 @@ heroTypeOffsets=offsets;
     });
     const hist=document.getElementById('offset-history');
     if(!Array.isArray(raw)||raw.length===0){hist.innerHTML='<span style="color:#333">履歴なし</span>';return;}
-    hist.innerHTML=raw.slice().reverse().map(r=>`<div style="display:flex;gap:12px;padding:5px 0;border-bottom:1px solid #1e2130"><span style="color:#555">${r['日付']||'—'}</span><span style="color:#c8cad8">${r['兵科']||'—'}</span><span style="color:#f5a623;font-weight:600">+${r['加算値(M)']||0}M</span></div>`).join('');
+    hist.innerHTML=raw.slice().reverse().map((r,i)=>{
+  const rowNum = raw.length - i + 1; // シートの実際の行番号（ヘッダー+1）
+  return `<div style="display:flex;gap:12px;padding:5px 0;border-bottom:1px solid #1e2130;align-items:center">
+    <span style="color:#555">${r['日付']||'—'}</span>
+    <span style="color:#c8cad8">${r['兵科']||'—'}</span>
+    <span style="color:#f5a623;font-weight:600">+${r['加算値(M)']||0}M</span>
+    <button onclick="deleteOffset(${rowNum})" style="margin-left:auto;background:transparent;border:1px solid #ff6b6b30;color:#ff6b6b;border-radius:4px;padding:2px 8px;font-size:10px;cursor:pointer">削除</button>
+  </div>`;
+}).join('');
   }catch(e){}
 }
 

@@ -344,6 +344,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
         </div>
         <div class="stats-row" id="m-stats-row"><span style="color:#444;font-size:12px">読み込み中...</span></div>
       </div>
+      <div class="card" id="offset-card" style="display:none">
+  <div class="card-header">
+    <div class="dot" style="background:#f5a623"></div>
+    <h3>兵科イベント オフセット入力</h3>
+  </div>
+  <div class="card-body">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+      <select id="offset-type" style="padding:8px 12px;background:#0f1117;border:1px solid #333;border-radius:8px;color:#e8eaf0;font-size:13px;outline:none">
+        <option value="戦車">戦車</option>
+        <option value="航空">航空</option>
+        <option value="ロケラン">ロケラン</option>
+      </select>
+      <input type="number" id="offset-val" placeholder="例: 0.3" step="0.1" min="0"
+        style="width:100px;padding:8px 12px;background:#0f1117;border:1px solid #333;border-radius:8px;color:#e8eaf0;font-size:13px;outline:none;text-align:center">
+      <span style="color:#666;font-size:12px">M</span>
+      <button onclick="addOffset()"
+        style="flex:1;min-width:80px;padding:8px 16px;background:#1e3a2a;border:1px solid #2a5a3a;border-radius:8px;color:#5bb87a;font-size:13px;font-weight:600;cursor:pointer">
+        追加
+      </button>
+    </div>
+    <div style="font-size:11px;color:#555;margin-bottom:8px">累積オフセット</div>
+    <div id="offset-summary" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"></div>
+    <div style="font-size:11px;color:#555;margin-bottom:6px">履歴</div>
+    <div id="offset-history" style="font-size:12px;color:#666">読み込み中...</div>
+  </div>
+</div>
       <div class="card">
         <div class="card-header">
           <div class="dot"></div>
@@ -415,6 +441,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 const GAS_URL='https://script.google.com/macros/s/AKfycbyrCsPDcpbPkoppGeqUmQM3mf8kO6gDW1_9D40q2KvkSSO9KRtgYBh5aMOZBksz3u0L9A/exec';
 const MASTER_PW='Kanikaf2026BxD';
 let allData={comparison:[],rankers:[],comprehensive:[],heroRankers:[],alliancePower:[],allianceKill:[],heroTotal:[]};
+let growthConfig={startDate:'2025/05/25',weeklyGrowth:0.5};
+let heroTypeOffsets={};
 let state={left:{zone:'',alliance:''},right:{zone:'',alliance:''}};
 let isMaster=false;
 let mSelected=null,mSearchTimer=null,mHistory=[];
@@ -531,6 +559,14 @@ async function init(){
     const zones=[...new Set(comp.map(r=>r['戦域']).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
     ['left-zone','right-zone'].forEach(id=>{const sel=document.getElementById(id);zones.forEach(z=>{const o=document.createElement('option');o.value=z;o.textContent=z+'戦域';sel.appendChild(o);});});
     document.getElementById('update-time').textContent='更新: '+new Date().toLocaleTimeString('ja-JP');
+    try {
+      const [cfg, offsets] = await Promise.all([
+        fetch(GAS_URL+'?action=getConfig').then(r=>r.json()),
+        fetch(GAS_URL+'?action=getOffsets').then(r=>r.json())
+      ]);
+      growthConfig = cfg;
+      heroTypeOffsets = offsets;
+    } catch(e) {}
     const savedLZ=localStorage.getItem('lw_left_zone'),savedLA=localStorage.getItem('lw_left_alliance');
     const savedRZ=localStorage.getItem('lw_right_zone'),savedRA=localStorage.getItem('lw_right_alliance');
     if(savedLZ){document.getElementById('left-zone').value=savedLZ;onZoneChange('left');if(savedLA){document.getElementById('left-alliance').value=savedLA;onAllianceChange('left');}}
@@ -554,6 +590,20 @@ function onZoneChange(side){
 }
 function classStyle(c){if(!c)return'';if(c.includes('戦車'))return'tank';if(c.includes('航空'))return'air';if(c.includes('ロケラン'))return'rocket';return'';}
 function formatB(val){if(val==null||val===''||val===0)return'—';const n=Number(val);if(isNaN(n)||n===0)return'—';if(n>=1e9)return(n/1e9).toFixed(2)+'B';if(n>=1e6)return(n/1e6).toFixed(0)+'M';return n.toLocaleString();}
+  function calcGrowthBonus(heroClass){
+  const start=new Date('2025/05/25');
+  const today=new Date();
+  let thursdays=0;
+  const d=new Date(start);
+  d.setDate(d.getDate()+7);
+  while(d<=today){
+    if(d.getDay()===4)thursdays++;
+    d.setDate(d.getDate()+7);
+  }
+  const weekly=thursdays*(growthConfig.weeklyGrowth||0.5);
+  const offset=heroTypeOffsets[heroClass]||0;
+  return Math.round((weekly+offset)*10)/10;
+}
 function onAllianceChange(side){
   const alliance=document.getElementById(side+'-alliance').value;state[side].alliance=alliance;saveState();if(!alliance)return;
   const zone=state[side].zone;
@@ -570,7 +620,12 @@ function onAllianceChange(side){
   const heroRankers=allData.heroRankers.filter(r=>r['連盟タグ']===alliance||r['連盟名']===alliance).slice(0,50);
   const cont=document.getElementById(side+'-rankers');
   let items=[];
-  rankers.forEach(r=>items.push({name:r['指揮官名'],class:r['兵科'],power:r['1軍推定戦力(M)'],type:'ranker'}));
+  rankers.forEach(r=>{
+  const base=parseFloat(r['1軍推定戦力(M)'])||0;
+  const bonus=base>0?calcGrowthBonus(r['兵科']):0;
+  const adjusted=base>0?Math.round((base+bonus)*10)/10:null;
+  items.push({name:r['指揮官名'],class:r['兵科'],power:adjusted?adjusted+'M':r['1軍推定戦力(M)'],type:'ranker'});
+});
   heroRankers.forEach(r=>items.push({name:r['指揮官名'],class:r['兵科']||'—',power:r['1軍推定戦力(M)※参考値'],type:'hero'}));
   let html=items.map(r=>`<div class="ranker-item${r.type==='hero'?' hero-only':''}"><span class="r-name">${r.name||'—'}</span><span class="r-class ${classStyle(r.class)}">${r.class||'—'}</span><span class="r-power">${r.power||'—'}</span></div>`).join('');
   for(let i=items.length;i<20;i++)html+=`<div class="ranker-item"><span class="r-name" style="color:#2a2d3a">—</span><span class="r-class"></span><span class="r-power"></span></div>`;
@@ -652,7 +707,7 @@ function switchTab(tab,btn){
   if(btn)btn.classList.add('active');
   if(tab==='tier')renderTier();
   if(tab==='admin')loadCodes();
-  if(tab==='master')mFetchStats();
+  if(tab==='master'){mFetchStats();if(isMaster){document.getElementById('offset-card').style.display='block';loadOffsets();}}
 }
 
 function formatM(val){if(!val||isNaN(val))return'—';return(Number(val)/1e6).toFixed(1)+'M';}
@@ -760,6 +815,39 @@ function mShowToast(msg,isError=false){
 }
 document.addEventListener('click',e=>{if(!e.target.closest('#m-candidates')&&!e.target.closest('#m-search-input'))mHideCandidates();});
 
+async function addOffset(){
+  const type=document.getElementById('offset-type').value;
+  const val=parseFloat(document.getElementById('offset-val').value);
+  if(!val||val<=0)return;
+  try{
+    const r=await fetch(`${GAS_URL}?action=addOffset&pw=${encodeURIComponent(MASTER_PW)}&type=${encodeURIComponent(type)}&val=${val}`);
+    const j=await r.json();
+    if(j.status==='ok'){
+      mShowToast(`✅ ${type} +${val}M を追加しました`);
+      document.getElementById('offset-val').value='';
+      await loadOffsets();
+    }else mShowToast('❌ エラー: '+(j.message||'不明'),true);
+  }catch(e){mShowToast('❌ 通信エラー: '+e.message,true);}
+}
+
+async function loadOffsets(){
+  try{
+    const [offsets,raw]=await Promise.all([
+      fetch(GAS_URL+'?action=getOffsets').then(r=>r.json()),
+      fetch(GAS_URL+'?sheet=兵科オフセット').then(r=>r.json())
+    ]);
+    heroTypeOffsets=offsets;
+    const summary=document.getElementById('offset-summary');
+    summary.innerHTML='';
+    ['戦車','航空','ロケラン'].forEach(t=>{
+      const v=Math.round((offsets[t]||0)*10)/10;
+      summary.innerHTML+= `<div style="background:#0f1117;border:1px solid #2a2d3a;border-radius:6px;padding:6px 12px;font-size:12px"><span style="color:#666">${t}</span><span style="color:#f5a623;font-weight:600;margin-left:8px">+${v}M</span></div>`;
+    });
+    const hist=document.getElementById('offset-history');
+    if(!Array.isArray(raw)||raw.length===0){hist.innerHTML='<span style="color:#333">履歴なし</span>';return;}
+    hist.innerHTML=raw.slice().reverse().map(r=>`<div style="display:flex;gap:12px;padding:5px 0;border-bottom:1px solid #1e2130"><span style="color:#555">${r['日付']||'—'}</span><span style="color:#c8cad8">${r['兵科']||'—'}</span><span style="color:#f5a623;font-weight:600">+${r['加算値(M)']||0}M</span></div>`).join('');
+  }catch(e){}
+}
 
 // ---- 指揮官検索 ----
 let csSearchTimer=null;

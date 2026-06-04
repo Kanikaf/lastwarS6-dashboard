@@ -650,7 +650,8 @@ function onAllianceChange(side){
   const cont=document.getElementById(side+'-rankers');
   let items=[];
   rankers.forEach(r=>{
-const base=parseFloat(r['1軍推定戦力(M)'])||0;
+const actual=parseFloat(r['1軍実測値(M)']);
+const base=(actual>0)?actual:(parseFloat(r['推定戦力数値(M)'])||0);
   const bonus=base>0?calcGrowthBonus(r['兵科'],r['実測記録日']):0;
   const adjusted=base>0?Math.round((base+bonus)*10)/10:null;
   items.push({name:r['指揮官名'],class:r['兵科'],power:adjusted?adjusted+'M':r['1軍推定戦力(M)'],type:'ranker'});

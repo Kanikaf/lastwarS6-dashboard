@@ -595,8 +595,13 @@ function onZoneChange(side){
 function classStyle(c){if(!c)return'';if(c.includes('戦車'))return'tank';if(c.includes('航空'))return'air';if(c.includes('ロケラン'))return'rocket';return'';}
 function formatB(val){if(val==null||val===''||val===0)return'—';const n=Number(val);if(isNaN(n)||n===0)return'—';if(n>=1e9)return(n/1e9).toFixed(2)+'B';if(n>=1e6)return(n/1e6).toFixed(0)+'M';return n.toLocaleString();}
 function calcGrowthBonus(heroClass, recordedAt){
-  const startStr = recordedAt && recordedAt.match(/^\d{4}\/\d{2}\/\d{2}$/)
-    ? recordedAt : '2025/05/25';
+  const startStr = (() => {
+    if (!recordedAt) return '2025/05/25';
+    if (recordedAt.match(/^\d{4}\/\d{2}\/\d{2}$/)) return recordedAt;
+    const d = new Date(recordedAt);
+    if (!isNaN(d)) return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+    return '2025/05/25';
+  })();
 
   // ゲーム時間基準：AM11時が日付切り替え
   const gameNow = new Date();

@@ -667,7 +667,7 @@ const base=(actual>0)?actual:(parseFloat(r['推定戦力数値(M)'])||0);
     type:'hero'
   });
 });
-  items.sort((a,b)=>(parseFloat(b.power)||0)-(parseFloat(a.power)||0));
+  items.sort((a,b)=>(parseFloat(String(b.power).replace('M',''))||0)-(parseFloat(String(a.power).replace('M',''))||0));
   let html=items.map(r=>`<div class="ranker-item${r.type==='hero'?' hero-only':''}"><span class="r-name">${r.name||'—'}</span><span class="r-class ${classStyle(r.class)}">${r.class||'—'}</span><span class="r-power">${r.power||'—'}</span></div>`).join('');
   for(let i=items.length;i<20;i++)html+=`<div class="ranker-item"><span class="r-name" style="color:#2a2d3a">—</span><span class="r-class"></span><span class="r-power"></span></div>`;
   cont.innerHTML=html||'<div class="loading">ランカーデータなし</div>';

@@ -594,19 +594,25 @@ function onZoneChange(side){
 }
 function classStyle(c){if(!c)return'';if(c.includes('戦車'))return'tank';if(c.includes('航空'))return'air';if(c.includes('ロケラン'))return'rocket';return'';}
 function formatB(val){if(val==null||val===''||val===0)return'—';const n=Number(val);if(isNaN(n)||n===0)return'—';if(n>=1e9)return(n/1e9).toFixed(2)+'B';if(n>=1e6)return(n/1e6).toFixed(0)+'M';return n.toLocaleString();}
-  function calcGrowthBonus(heroClass){
-  const start=new Date('2025/05/25');
-  const today=new Date();
-  let thursdays=0;
-  const d=new Date(start);
-  d.setDate(d.getDate()+7);
-  while(d<=today){
-    if(d.getDay()===4)thursdays++;
-    d.setDate(d.getDate()+7);
+function calcGrowthBonus(heroClass, recordedAt){
+  const startStr = recordedAt && recordedAt.match(/^\d{4}\/\d{2}\/\d{2}$/)
+    ? recordedAt : '2025/05/25';
+  const start = new Date(startStr);
+  const today = new Date();
+  let thursdays = 0;
+  const d = new Date(start);
+  d.setDate(d.getDate() + 7);
+  while(d <= today){
+    if(d.getDay() === 4) thursdays++;
+    d.setDate(d.getDate() + 7);
   }
-  const weekly=thursdays*(growthConfig.weeklyGrowth||0.5);
-  const offset=heroTypeOffsets[heroClass]||0;
-  return Math.round((weekly+offset)*10)/10;
+  const weekly = thursdays * (growthConfig.weeklyGrowth || 0.5);
+  const offsetData = heroTypeOffsets._raw || [];
+  let offset = 0;
+  offsetData.forEach(o => {
+    if(o.date >= startStr && o.type === heroClass) offset += o.val;
+  });
+  return Math.round((weekly + offset) * 10) / 10;
 }
 function onAllianceChange(side){
   const alliance=document.getElementById(side+'-alliance').value;state[side].alliance=alliance;saveState();if(!alliance)return;
@@ -625,8 +631,8 @@ function onAllianceChange(side){
   const cont=document.getElementById(side+'-rankers');
   let items=[];
   rankers.forEach(r=>{
-  const base=parseFloat(r['1軍推定戦力(M)'])||0;
-  const bonus=base>0?calcGrowthBonus(r['兵科']):0;
+const base=parseFloat(r['1軍推定戦力(M)'])||0;
+  const bonus=base>0?calcGrowthBonus(r['兵科'],r['実測記録日']):0;
   const adjusted=base>0?Math.round((base+bonus)*10)/10:null;
   items.push({name:r['指揮官名'],class:r['兵科'],power:adjusted?adjusted+'M':r['1軍推定戦力(M)'],type:'ranker'});
 });
@@ -840,7 +846,12 @@ async function loadOffsets(){
       fetch(GAS_URL+'?action=getOffsets').then(r=>r.json()),
       fetch(GAS_URL+'?sheet=兵科オフセット').then(r=>r.json())
     ]);
-    heroTypeOffsets=offsets;
+heroTypeOffsets=offsets;
+    heroTypeOffsets._raw=(Array.isArray(raw)?raw:[]).map(r=>({
+      date: String(r['日付']||''),
+      type: String(r['兵科']||''),
+      val: parseFloat(r['加算値(M)'])||0
+    }));
     const summary=document.getElementById('offset-summary');
     summary.innerHTML='';
     ['戦車','航空','ロケラン'].forEach(t=>{

@@ -678,9 +678,8 @@ function renderAllianceInfo(side, allianceTag) {
     🌍 <span style="color:#5ba3f5">${tz.label}</span>
     <span style="color:#c8cad8;margin-left:6px">現地 ${localTime}</span>
   </div>`;
-  const safeTimes = [s.safe1, s.safe2, s.safe3].filter(t => t > 0);
-  if (safeTimes.length > 0) {
-    const safeHtml = safeTimes.map(t => {
+if (s.safe > 0) {
+    const safeHtml = [s.safe].map(t => {
       const st = SAFE_TIMES[t];
       if (!st) return '';
       const local = getSafeTimeLocal(st.start, tz.offset);

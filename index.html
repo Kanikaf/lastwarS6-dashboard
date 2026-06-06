@@ -285,6 +285,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
         <div class="bs-item"><div class="lbl">連盟総戦力(B)</div><div class="val power" id="right-bs-power">—</div></div>
         <div class="bs-item"><div class="lbl">撃破数(B)</div><div class="val kill" id="right-bs-kill">—</div></div>
       </div>
+      <div id="left-tz-info"></div>
+      <div id="right-tz-info"></div>
       <div class="minmax-row">
         <div class="mm-item"><div class="lbl">ランカーMAX推定</div><div class="num max-c" id="right-max">—</div></div>
         <div class="mm-item"><div class="lbl">ランカーMIN推定</div><div class="num min-c" id="right-min">—</div></div>
@@ -442,6 +444,7 @@ const GAS_URL='https://script.google.com/macros/s/AKfycbyrCsPDcpbPkoppGeqUmQM3mf
 const MASTER_PW='Kanikaf2026BxD';
 let allData={comparison:[],rankers:[],comprehensive:[],heroRankers:[],alliancePower:[],allianceKill:[],heroTotal:[]};
 let growthConfig={startDate:'2025/05/25',weeklyGrowth:0.5};
+let allianceSettings={};
 let heroTypeOffsets={};
 let state={left:{zone:'',alliance:''},right:{zone:'',alliance:''}};
 let isMaster=false;
@@ -563,13 +566,15 @@ async function init(){
   zones.forEach(z=>{const o=document.createElement('option');o.value=z;o.textContent=z+'戦域';sel.appendChild(o);});
 });
     document.getElementById('update-time').textContent='更新: '+new Date().toLocaleTimeString('ja-JP');
-    try {
-      const [cfg, offsets] = await Promise.all([
+try {
+      const [cfg, offsets, settings] = await Promise.all([
         fetch(GAS_URL+'?action=getConfig').then(r=>r.json()),
-        fetch(GAS_URL+'?action=getOffsets').then(r=>r.json())
+        fetch(GAS_URL+'?action=getOffsets').then(r=>r.json()),
+        fetch(GAS_URL+'?action=getAllianceSettings').then(r=>r.json())
       ]);
       growthConfig = cfg;
       heroTypeOffsets = offsets;
+      allianceSettings = settings;
     } catch(e) {}
     const savedLZ=localStorage.getItem('lw_left_zone'),savedLA=localStorage.getItem('lw_left_alliance');
     const savedRZ=localStorage.getItem('lw_right_zone'),savedRA=localStorage.getItem('lw_right_alliance');
@@ -633,6 +638,59 @@ function calcGrowthBonus(heroClass, recordedAt){
 
   return Math.round((weekly + offset) * 10) / 10;
 }
+const TZ_INFO = {
+  1: {label:'日本・韓国・中国', offset:0},
+  2: {label:'東南アジア', offset:-2},
+  3: {label:'オセアニア', offset:2},
+  4: {label:'中東・インド圏', offset:-5},
+  5: {label:'ヨーロッパ', offset:-8},
+  6: {label:'アメリカ・カナダ', offset:-14},
+  7: {label:'アフリカ', offset:-9},
+  8: {label:'ロシア', offset:-6},
+};
+
+const SAFE_TIMES = {
+  1: {jp:'15:00〜16:00', start:15},
+  2: {jp:'23:00〜0:00', start:23},
+  3: {jp:'7:00〜8:00', start:7},
+};
+
+function getLocalTime(tzOffset) {
+  const now = new Date();
+  const localHour = ((now.getUTCHours() + 9 + tzOffset) % 24 + 24) % 24;
+  const localMin = now.getMinutes();
+  return `${String(localHour).padStart(2,'0')}:${String(localMin).padStart(2,'0')}`;
+}
+
+function getSafeTimeLocal(safeStart, tzOffset) {
+  const localStart = ((safeStart + tzOffset) % 24 + 24) % 24;
+  const localEnd = ((safeStart + 1 + tzOffset) % 24 + 24) % 24;
+  return `${String(localStart).padStart(2,'0')}:00〜${String(localEnd).padStart(2,'0')}:00`;
+}
+
+function renderAllianceInfo(side, allianceTag) {
+  const s = allianceSettings[allianceTag];
+  if (!s || !s.timezone) return;
+  const tz = TZ_INFO[s.timezone];
+  if (!tz) return;
+  const localTime = getLocalTime(tz.offset);
+  let html = `<div style="font-size:11px;color:#888;padding:6px 14px;border-bottom:1px solid #2a2d3a">
+    🌍 <span style="color:#5ba3f5">${tz.label}</span>
+    <span style="color:#c8cad8;margin-left:6px">現地 ${localTime}</span>
+  </div>`;
+  const safeTimes = [s.safe1, s.safe2, s.safe3].filter(t => t > 0);
+  if (safeTimes.length > 0) {
+    const safeHtml = safeTimes.map(t => {
+      const st = SAFE_TIMES[t];
+      if (!st) return '';
+      const local = getSafeTimeLocal(st.start, tz.offset);
+      return `<span style="margin-right:8px">🛡${st.jp}<span style="color:#888;font-size:10px">(現地${local})</span></span>`;
+    }).join('');
+    html += `<div style="font-size:11px;color:#c8cad8;padding:6px 14px;border-bottom:1px solid #2a2d3a">${safeHtml}</div>`;
+  }
+  const target = document.getElementById(`${side}-tz-info`);
+  if (target) target.innerHTML = html;
+}
 function onAllianceChange(side){
   const alliance=document.getElementById(side+'-alliance').value;state[side].alliance=alliance;saveState();if(!alliance)return;
   const zone=state[side].zone;
@@ -671,6 +729,7 @@ const base=(actual>0)?actual:(parseFloat(r['推定戦力数値(M)'])||0);
   let html=items.map(r=>`<div class="ranker-item${r.type==='hero'?' hero-only':''}"><span class="r-name">${r.name||'—'}</span><span class="r-class ${classStyle(r.class)}">${r.class||'—'}</span><span class="r-power">${r.power||'—'}</span></div>`).join('');
   for(let i=items.length;i<20;i++)html+=`<div class="ranker-item"><span class="r-name" style="color:#2a2d3a">—</span><span class="r-class"></span><span class="r-power"></span></div>`;
   cont.innerHTML=html||'<div class="loading">ランカーデータなし</div>';
+  renderAllianceInfo(side, alliance);
   updateBars();updatePieCharts();
 }
 function setBar(lid,rid,lvid,rvid,lv,rv){

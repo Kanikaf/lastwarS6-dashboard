@@ -943,11 +943,11 @@ async function loadOffsets(){
       fetch(GAS_URL+'?sheet=兵科オフセット').then(r=>r.json())
     ]);
 heroTypeOffsets=offsets;
-    heroTypeOffsets._raw=(Array.isArray(raw)?raw:[]).map(r=>({
-      date: String(r['日付']||''),
-      type: String(r['兵科']||''),
-      val: parseFloat(r['加算値(M)'])||0
-    }));
+heroTypeOffsets._raw = (Array.isArray(raw) ? raw : []).map(r => ({
+  date: String(r['日付'] || '').trim().replace(/-/g, '/').substring(0, 10), // 
+  type: String(r['兵科'] || ''),
+  val: parseFloat(r['加算値(M)']) || 0
+}));
     const summary=document.getElementById('offset-summary');
     summary.innerHTML='';
     ['戦車','航空','ロケラン'].forEach(t=>{

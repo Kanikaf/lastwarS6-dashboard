@@ -606,16 +606,20 @@ function onZoneChange(side){
 function classStyle(c){if(!c)return'';if(c.includes('戦車'))return'tank';if(c.includes('航空'))return'air';if(c.includes('ロケラン'))return'rocket';return'';}
 function formatB(val){if(val==null||val===''||val===0)return'—';const n=Number(val);if(isNaN(n)||n===0)return'—';if(n>=1e9)return(n/1e9).toFixed(2)+'B';if(n>=1e6)return(n/1e6).toFixed(0)+'M';return n.toLocaleString();}
 function calcGrowthBonus(heroClass, recordedAt){
-  // 常にgrowthConfig.startDateを起点にする（実測記録日は無視）
-  const startStr = growthConfig.startDate || '2025/05/25';
+  const startStr = (() => {
+    if (!recordedAt) return growthConfig.startDate || '2026/05/25';
+    if (typeof recordedAt === 'string' && recordedAt.match(/^\d{4}\/\d{2}\/\d{2}$/)) return recordedAt;
+    const d = new Date(recordedAt);
+    if (!isNaN(d)) return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+    return growthConfig.startDate || '2026/05/25';
+  })();
 
   const now = new Date();
 
-  // 起点の翌日から1日ずつ進めて木曜AM11時をカウント
   let thursdays = 0;
   const start = new Date(startStr);
   const d = new Date(start);
-  d.setDate(d.getDate() + 1); // 起点の翌日から
+  d.setDate(d.getDate() + 1);
   while(d <= now){
     if(d.getDay() === 4){
       const threshold = new Date(d);
@@ -627,7 +631,6 @@ function calcGrowthBonus(heroClass, recordedAt){
 
   const weekly = thursdays * (growthConfig.weeklyGrowth || 0.5);
 
-  // オフセット（兵科イベント補正）もstartStr起点で計算
   const gameNow = new Date(now);
   gameNow.setHours(gameNow.getHours() - 11);
   const gameTodayStr = `${gameNow.getFullYear()}/${String(gameNow.getMonth()+1).padStart(2,'0')}/${String(gameNow.getDate()).padStart(2,'0')}`;

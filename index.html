@@ -567,14 +567,20 @@ async function init(){
 });
     document.getElementById('update-time').textContent='更新: '+new Date().toLocaleTimeString('ja-JP');
 try {
-      const [cfg, offsets, settings] = await Promise.all([
-        fetch(GAS_URL+'?action=getConfig').then(r=>r.json()),
-        fetch(GAS_URL+'?action=getOffsets').then(r=>r.json()),
-        fetch(GAS_URL+'?action=getAllianceSettings').then(r=>r.json())
-      ]);
-      growthConfig = cfg;
-      heroTypeOffsets = offsets;
-      allianceSettings = settings;
+const [cfg, offsets, settings, rawOffsets] = await Promise.all([
+  fetch(GAS_URL+'?action=getConfig').then(r=>r.json()),
+  fetch(GAS_URL+'?action=getOffsets').then(r=>r.json()),
+  fetch(GAS_URL+'?action=getAllianceSettings').then(r=>r.json()),
+  fetch(GAS_URL+'?sheet=兵科オフセット').then(r=>r.json())
+]);
+growthConfig = cfg;
+heroTypeOffsets = offsets;
+heroTypeOffsets._raw = (Array.isArray(rawOffsets) ? rawOffsets : []).map(r => ({
+  date: String(r['日付'] || '').trim().replace(/-/g, '/').substring(0, 10),
+  type: String(r['兵科'] || ''),
+  val: parseFloat(r['加算値(M)']) || 0
+}));
+allianceSettings = settings;
     } catch(e) {}
     const savedLZ=localStorage.getItem('lw_left_zone'),savedLA=localStorage.getItem('lw_left_alliance');
     const savedRZ=localStorage.getItem('lw_right_zone'),savedRA=localStorage.getItem('lw_right_alliance');

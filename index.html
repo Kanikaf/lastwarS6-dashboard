@@ -600,36 +600,32 @@ function onZoneChange(side){
 function classStyle(c){if(!c)return'';if(c.includes('戦車'))return'tank';if(c.includes('航空'))return'air';if(c.includes('ロケラン'))return'rocket';return'';}
 function formatB(val){if(val==null||val===''||val===0)return'—';const n=Number(val);if(isNaN(n)||n===0)return'—';if(n>=1e9)return(n/1e9).toFixed(2)+'B';if(n>=1e6)return(n/1e6).toFixed(0)+'M';return n.toLocaleString();}
 function calcGrowthBonus(heroClass, recordedAt){
-  const startStr = (() => {
-    if (!recordedAt) return '2025/05/25';
-    if (recordedAt.match(/^\d{4}\/\d{2}\/\d{2}$/)) return recordedAt;
-    const d = new Date(recordedAt);
-    if (!isNaN(d)) return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
-    return '2025/05/25';
-  })();
+  // 常にgrowthConfig.startDateを起点にする（実測記録日は無視）
+  const startStr = growthConfig.startDate || '2025/05/25';
 
-  // ゲーム時間基準：AM11時が日付切り替え
-  const gameNow = new Date();
-  gameNow.setHours(gameNow.getHours() - 11); // AM11時を0時扱い
-  const gameTodayStr = `${gameNow.getFullYear()}/${String(gameNow.getMonth()+1).padStart(2,'0')}/${String(gameNow.getDate()).padStart(2,'0')}`;
+  const now = new Date();
 
-  // 起点もゲーム時間に変換
-  const start = new Date(startStr);
+  // 起点の翌日から1日ずつ進めて木曜AM11時をカウント
   let thursdays = 0;
+  const start = new Date(startStr);
   const d = new Date(start);
-  d.setDate(d.getDate() + 7);
-  while(d <= new Date()){
+  d.setDate(d.getDate() + 1); // 起点の翌日から
+  while(d <= now){
     if(d.getDay() === 4){
       const threshold = new Date(d);
       threshold.setHours(11, 0, 0, 0);
-      if(new Date() >= threshold) thursdays++;
+      if(now >= threshold) thursdays++;
     }
-    d.setDate(d.getDate() + 7);
+    d.setDate(d.getDate() + 1);
   }
 
   const weekly = thursdays * (growthConfig.weeklyGrowth || 0.5);
 
-  // オフセットもゲーム日付で比較
+  // オフセット（兵科イベント補正）もstartStr起点で計算
+  const gameNow = new Date(now);
+  gameNow.setHours(gameNow.getHours() - 11);
+  const gameTodayStr = `${gameNow.getFullYear()}/${String(gameNow.getMonth()+1).padStart(2,'0')}/${String(gameNow.getDate()).padStart(2,'0')}`;
+
   const offsetData = heroTypeOffsets._raw || [];
   let offset = 0;
   offsetData.forEach(o => {
@@ -638,6 +634,7 @@ function calcGrowthBonus(heroClass, recordedAt){
 
   return Math.round((weekly + offset) * 10) / 10;
 }
+
 const TZ_INFO = {
   1: {label:'日本・韓国・中国', offset:0},
   2: {label:'東南アジア', offset:-2},
